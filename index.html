@@ -372,26 +372,14 @@
 
       
         
-          
-            <p>有些时间没有更新技术博客了，上段时间都在忙考试。<br>这次继续学习新的设计模式————模板方法模式。依旧先从一个UML图开始：<br><img src="/img/tmp.png" alt="UML"><br>其中：</p>
-<blockquote>
-<p>AbsTmplate:定义了逻辑的框架<br>ConcreteImplA:具体实现A<br>ConcreteImplB:具体实现B</p>
-</blockquote>
-<p>举个例子，现有几部电脑，每部电脑的操作系统不相同，但是每部电脑的开机流程都相同。比如打开电源，装载系统，登录系统。<br>首先，就需要抽象出一个电脑类：<br><figure class="highlight cs"><table><tr><td class="code"><pre><div class="line"><span class="comment">//抽象类，定义了一组行为</span></div><div class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AbsComputer</span> &#123;</div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">powerOn</span>(<span class="params"></span>) </span>&#123;</div><div class="line">        System.<span class="keyword">out</span>.println(<span class="string">"打开电源"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">loadOs</span>(<span class="params"></span>) </span>&#123;</div><div class="line">        System.<span class="keyword">out</span>.println(<span class="string">"加载操作系统"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">login</span>(<span class="params"></span>) </span>&#123;</div><div class="line">        System.<span class="keyword">out</span>.println(<span class="string">"无需输入密码，直接登录"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">//final修饰，子类不能修改运行的逻辑</span></div><div class="line">    <span class="function"><span class="keyword">public</span> final <span class="keyword">void</span> <span class="title">start</span>(<span class="params"></span>) </span>&#123;</div><div class="line">	<span class="comment">//开机的固定流程，相当于执行一套模板</span></div><div class="line">        powerOn();</div><div class="line">        loadOs();</div><div class="line">        login();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>现有两部电脑，一部装载了Windows系统，另一部是Linux系统：<br><figure class="highlight scala"><table><tr><td class="code"><pre><div class="line">public <span class="class"><span class="keyword">class</span> <span class="title">LinuxComputer</span> <span class="keyword">extends</span> <span class="title">AbsComputer</span> </span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="keyword">protected</span> void loadOs() &#123;</div><div class="line">        <span class="type">System</span>.out.println(<span class="string">"加载Ubuntu系统"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="keyword">protected</span> void login() &#123;</div><div class="line">        <span class="type">System</span>.out.println(<span class="string">"输入密码登录系统"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><div class="line">public <span class="class"><span class="keyword">class</span> <span class="title">WinComputer</span> <span class="keyword">extends</span> <span class="title">AbsComputer</span> </span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="keyword">protected</span> void loadOs() &#123;</div><div class="line">        <span class="type">System</span>.out.println(<span class="string">"加载windows系统"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="keyword">protected</span> void login() &#123;</div><div class="line">        <span class="type">System</span>.out.println(<span class="string">"输入密码登录系统"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>通过一个测试类让电脑按照模板来执行：<br><figure class="highlight cs"><table><tr><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Test</span> &#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span>(<span class="params">String[] args</span>) </span>&#123;</div><div class="line">        AbsComputer winPc = <span class="keyword">new</span> WinComputer();</div><div class="line">        winPc.start();</div><div class="line"></div><div class="line">        System.<span class="keyword">out</span>.println(<span class="string">"\n"</span> + <span class="string">"-------------------"</span>);</div><div class="line">        AbsComputer linuxPc = <span class="keyword">new</span> LinuxComputer();</div><div class="line">        linuxPc.start();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>执行结果：</p>
-<blockquote>
-<p>打开电源<br>加载windows系统<br>输入密码登录系统</p>
-<hr>
-<p>打开电源<br>加载Ubuntu系统<br>输入密码登录系统</p>
-</blockquote>
-<p>从上可知，模板方法模式是对逻辑流程的一个封装，将共有的方法集中在父类，能够提高程序的扩展性。</p>
-<p>###Android中的应用<br>在Android中，AsyncTask是用模板方式实现的架构之一。在用其执行异步任务时，一定需要通过执行其execute方法才能开始。在任务开始时，会先后执行onPreExecute(),doInBackgroud(),onPostExecute()方法，而里面的每个方法的实现是需要开发者自己去定义，就如上述装载系统一样。<br>关于AsyncTask的实现，参考<a href="http://scauq.cn/2016/05/01/%E6%B7%B1%E5%85%A5%E6%8E%A2%E7%B4%A2AsyncTask/" target="_blank" rel="external">http://scauq.cn/2016/05/01/%E6%B7%B1%E5%85%A5%E6%8E%A2%E7%B4%A2AsyncTask/</a></p>
-<p>另外，Activity的生命周期也是通过模板方式实现的。通过onCreate(), onStart(), onResume(), onPause(), onStop(), onDestroy()等方法形成一个模板，每个Activity只需要关心如何实现模板中的各个方法即可。 </p>
-
-          
+          <p>有些时间没有更新技术博客了，上段时间都在忙考试。<br>这次继续学习新的设计模式————模板方法模式。依旧先从一个UML图开始：<br><img src="/img/tmp.png" alt="UML"><br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017/01/07/模板方法模式/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
