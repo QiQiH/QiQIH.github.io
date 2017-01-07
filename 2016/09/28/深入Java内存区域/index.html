@@ -1,0 +1,705 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="JVM," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="接触Java不久，就了解到Java内存区域的简单划分，如寄存器，堆，堆栈等。在阅读《深入理解Java虚拟机》后，对于内存的划分又有了新的理解。
+####运行时数据区域Java虚拟机在执行Java程序时会把内存划分为几个不同的数据区域，分别为程序计数器，虚拟机栈，本地方法栈，堆，方法区。而除了程序计数器之外的每个区域都会有内存溢出的现象，通过下图可以对其内存区域进行分类：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入Java内存区域">
+<meta property="og:url" content="http://yoursite.com/2016/09/28/深入Java内存区域/index.html">
+<meta property="og:site_name" content="QiHuang's Blogs">
+<meta property="og:description" content="接触Java不久，就了解到Java内存区域的简单划分，如寄存器，堆，堆栈等。在阅读《深入理解Java虚拟机》后，对于内存的划分又有了新的理解。
+####运行时数据区域Java虚拟机在执行Java程序时会把内存划分为几个不同的数据区域，分别为程序计数器，虚拟机栈，本地方法栈，堆，方法区。而除了程序计数器之外的每个区域都会有内存溢出的现象，通过下图可以对其内存区域进行分类：">
+<meta property="og:image" content="http://img.blog.csdn.net/20160928130042176">
+<meta property="og:image" content="http://img.blog.csdn.net/20131226172011765">
+<meta property="og:image" content="http://img.blog.csdn.net/20131226172113234">
+<meta property="og:updated_time" content="2017-01-07T05:47:52.314Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="深入Java内存区域">
+<meta name="twitter:description" content="接触Java不久，就了解到Java内存区域的简单划分，如寄存器，堆，堆栈等。在阅读《深入理解Java虚拟机》后，对于内存的划分又有了新的理解。
+####运行时数据区域Java虚拟机在执行Java程序时会把内存划分为几个不同的数据区域，分别为程序计数器，虚拟机栈，本地方法栈，堆，方法区。而除了程序计数器之外的每个区域都会有内存溢出的现象，通过下图可以对其内存区域进行分类：">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20160928130042176">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/09/28/深入Java内存区域/"/>
+
+
+
+
+
+  <title> 深入Java内存区域 | QiHuang's Blogs </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">QiHuang's Blogs</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">hah!</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-note">
+          <a href="/categories/note" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            随笔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            目录
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/09/28/深入Java内存区域/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="QiHuang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://p3.gexing.com/shaitu/20121007/1357/507119d890452.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="QiHuang's Blogs">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="QiHuang's Blogs" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                深入Java内存区域
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-09-28T13:01:00+08:00">
+                2016-09-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JVM/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/09/28/深入Java内存区域/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/28/深入Java内存区域/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>接触Java不久，就了解到Java内存区域的简单划分，如寄存器，堆，堆栈等。在阅读《深入理解Java虚拟机》后，对于内存的划分又有了新的理解。</p>
+<p>####<strong>运行时数据区域</strong><br>Java虚拟机在执行Java程序时会把内存划分为几个不同的数据区域，分别为<strong>程序计数器，虚拟机栈，本地方法栈，堆，方法区</strong>。而除了程序计数器之外的每个区域都会有内存溢出的现象，通过下图可以对其内存区域进行分类：<br><img src="http://img.blog.csdn.net/20160928130042176" alt="这里写图片描述"><br><a id="more"></a></p>
+<p>####<strong>程序计数器</strong><br>程序计数器是一块较小的空间，可以看作是当前线程所执行字节码的行号指示器，简单来讲，计数器的值可以用来选取下一条需要执行的指令。Java虚拟机在一个时刻只能执行一个线程中的指令。因此，在多线程下，为了保证线程切换能恢复到正确的位置，每条线程都会有独立的程序计数器。由于各线程计数器互不影响，可以称此类内存区域为“线程私有”的内存。<br><strong>如果线程正在执行一个Java方法，则计数器存储的是下一条指令的地址。如果执行的是Native方法，则计数器为空。</strong>程序计数器是虚拟机中唯一一个不会抛出OOM异常的区域。</p>
+<p>####<strong>Java虚拟机栈</strong><br>与程序计数器一样，Java虚拟机栈也是线程私有的，它的生命周期也线程相同。Java虚拟机描述的是<strong>Java方法执行的内存模型</strong>：每个方法被执行的时候都会创建一个栈帧，用来存储局部变量表，操作栈，动态链接，方法出口等信息。一个方法从调用到执行完成，意味着一个栈帧在虚拟机中入栈到出栈。<br>上述提到了几个知识点：<strong>局部变量表，操作栈，动态链接，方法出口</strong>。可以具体的了解一下（参考来源：<a href="http://blog.csdn.net/ns_code/article/details/17565503）：" target="_blank" rel="external">http://blog.csdn.net/ns_code/article/details/17565503）：</a></p>
+<p>#####<strong>局部变量表</strong><br>局部变量表存放了编译器可知的八大数据类型，对象引用和returnAddress类型（指向下一条指令的地址）。局部变量表所占用的内存空间在编译期间完成分配。当进入一个方法时，这个方法需要多大的局部变量空间是完全确定的，方法执行的过程中不会改变局部变量表的大小。</p>
+<p>#####<strong>操作栈</strong><br>操作栈，也叫操作数栈。其最大深度在编译期间就已经确定。当方法开始执行前，栈是空的，随后会有各种指令向该栈提取或存入数据，即入栈出栈操作。</p>
+<p>#####<strong>动态链接</strong><br>每个栈帧都包含一个指向运行时常量池（在方法区中，后面介绍）中该栈帧所属方法的引用，持有这个引用是为了支持方法调用过程中的动态连接。Class文件的常量池中存在有大量的符号引用，字节码中的方法调用指令就以常量池中指向方法的符号引用为参数。这些符号引用，一部分会在类加载阶段或第一次使用的时候转化为直接引用（如final、static域等），称为静态解析，另一部分将在每一次的运行期间转化为直接引用，这部分称为动态连接。</p>
+<p>#####<strong>方法出口</strong><br>当一个方法被执行后，有两种方式退出该方法：执行引擎遇到了任意一个方法返回的字节码指令或遇到了异常，并且该异常没有在方法体内得到处理。无论采用何种退出方式，在方法退出之后，都需要返回到方法被调用的位置，程序才能继续执行。方法返回时可能需要在栈帧中保存一些信息，用来帮助恢复它的上层方法的执行状态。一般来说，方法正常退出时，调用者的PC计数器的值就可以作为返回地址，栈帧中很可能保存了这个计数器值，而方法异常退出时，返回地址是要通过异常处理器来确定的，栈帧中一般不会保存这部分信息。方法退出的过程实际上等同于把当前栈帧出站，因此退出时可能执行的操作有：恢复上层方法的局部变量表和操作数栈，如果有返回值，则把它压入调用者栈帧的操作数栈中，调整PC计数器的值以指向方法调用指令后面的一条指令。</p>
+<p>####<strong>本地方法栈</strong><br>与虚拟机栈相似，但不同点在于虚拟机栈执行的是Java方法，而本地方法栈执行的是虚拟机使用到的Native方法。与虚拟机栈相同，都会有可能抛出OOM和SOF异常。</p>
+<p>####<strong>Java堆</strong><br>Java堆是Java虚拟机中内存最大的一块，它被所有线程共享，在虚拟机启动时自动创建。几乎所有的对象实例都会在此处分配内存。同时Java堆是垃圾收集的主要区域。<br>Java堆可以在物理上不连续，但只要逻辑上连续就可以。堆中如果没有内存来存储对象实例，就会抛出OOM异常。</p>
+<p>####<strong>方法区</strong><br>方法区也是线程共享的一块内存区域吗，用于存储被虚拟机加载的类信息，常量，静态变量，即时编译的代码等数据。此区域也与堆类似，不需要连续的内存。也还可以不需要垃圾回收。<br>其中，需要注意到在方法区中存在一个叫<strong>运行时常量池</strong>的内存区域。Class文件中除了有类的版本、字段、方法、接口等描述信息外，还有一项信息是常量池（Class文件常量池），用于存放编译器生成的各种字面量和符号引用，这部分内容将在类加载后存放到方法区的运行时常量池中。在实际的开发过程中，可以使用String的intern()方法来为常量池添加一个新的常量。<br>如果无法满足内存需求分配，同样会抛出OOM异常。</p>
+<p>####<strong>直接内存</strong><br>直接内存并不是虚拟机运行时数据区的一部分，也不是Java虚拟机规范中定义的内存区域。直接内存的分配不会受到Java堆大小的限制，但会受到本机总内存或是处理器寻址空间的限制。也有可能出现OOM异常。</p>
+<p>####<strong>对象访问</strong><br>通过上述的叙述，会有点感觉捉摸不透。一个对象被生成后具体会使用到哪些区域？<br>以Object obj = new Object()为例，Object obj 这一块则会存储到Java虚拟机栈的变量表中，作为一个引用类型。而new Object()则会存储到Java堆中。另外Object的对象类型，实现的接口，方法等则会存储到方法区中。当我们需要访问这个Object对象时，通常虚拟机会有这两种方法：</p>
+<ol>
+<li>使用句柄访问方式</li>
+<li>使用直接指针访问方式</li>
+</ol>
+<p>具体的可以通过下图来理解：<br>1.<br><img src="http://img.blog.csdn.net/20131226172011765" alt="这里写图片描述"><br>2.<br><img src="http://img.blog.csdn.net/20131226172113234" alt="这里写图片描述"></p>
+<p>其中，句柄访问方式优点在于当对象被移动时，只需改变句柄池中对于的地址。而直接指针访问方式优点在于其访问的速度更快。至于选取那种访问方式各个虚拟机可能会有所不同。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/JVM/" rel="tag"># JVM</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/16/BroadcastReceiver应用/" rel="next" title="BroadcastReceiver应用">
+                <i class="fa fa-chevron-left"></i> BroadcastReceiver应用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/30/JVM类加载机制/" rel="prev" title="JVM类加载机制">
+                JVM类加载机制 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/09/28/深入Java内存区域/"
+           data-title="深入Java内存区域" data-url="http://yoursite.com/2016/09/28/深入Java内存区域/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://p3.gexing.com/shaitu/20121007/1357/507119d890452.jpg"
+               alt="QiHuang" />
+          <p class="site-author-name" itemprop="name">QiHuang</p>
+          <p class="site-description motion-element" itemprop="description">hah!</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">53</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">QiHuang</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"scauq"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

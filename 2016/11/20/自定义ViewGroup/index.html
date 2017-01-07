@@ -1,0 +1,687 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="上一篇了解了如何去实现自定义View，这篇就了解下如何自定义一个ViewGroup。其实，自定义View和ViewGroup都需要从View的绘制机制来入手，可见了解绘图机制对于自定义View和ViewGroup的作用还是很大的。自定义ViewGroup主要在onMeasure和onLayout两个过程下手。通过onMeasure来确定好视图的大小，通过onLayout来确定每个视图的位置。 这次">
+<meta property="og:type" content="article">
+<meta property="og:title" content="自定义ViewGroup">
+<meta property="og:url" content="http://yoursite.com/2016/11/20/自定义ViewGroup/index.html">
+<meta property="og:site_name" content="QiHuang's Blogs">
+<meta property="og:description" content="上一篇了解了如何去实现自定义View，这篇就了解下如何自定义一个ViewGroup。其实，自定义View和ViewGroup都需要从View的绘制机制来入手，可见了解绘图机制对于自定义View和ViewGroup的作用还是很大的。自定义ViewGroup主要在onMeasure和onLayout两个过程下手。通过onMeasure来确定好视图的大小，通过onLayout来确定每个视图的位置。 这次">
+<meta property="og:image" content="http://img.blog.csdn.net/20161120211831413">
+<meta property="og:updated_time" content="2017-01-07T05:47:52.332Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="自定义ViewGroup">
+<meta name="twitter:description" content="上一篇了解了如何去实现自定义View，这篇就了解下如何自定义一个ViewGroup。其实，自定义View和ViewGroup都需要从View的绘制机制来入手，可见了解绘图机制对于自定义View和ViewGroup的作用还是很大的。自定义ViewGroup主要在onMeasure和onLayout两个过程下手。通过onMeasure来确定好视图的大小，通过onLayout来确定每个视图的位置。 这次">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20161120211831413">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/11/20/自定义ViewGroup/"/>
+
+
+
+
+
+  <title> 自定义ViewGroup | QiHuang's Blogs </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">QiHuang's Blogs</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">hah!</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-note">
+          <a href="/categories/note" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            随笔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            目录
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/11/20/自定义ViewGroup/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="QiHuang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://p3.gexing.com/shaitu/20121007/1357/507119d890452.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="QiHuang's Blogs">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="QiHuang's Blogs" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                自定义ViewGroup
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-11-20T21:05:00+08:00">
+                2016-11-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/11/20/自定义ViewGroup/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/11/20/自定义ViewGroup/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>上一篇了解了如何去实现自定义View，这篇就了解下如何自定义一个ViewGroup。其实，自定义View和ViewGroup都需要从View的绘制机制来入手，可见了解绘图机制对于自定义View和ViewGroup的作用还是很大的。自定义ViewGroup主要在onMeasure和onLayout两个过程下手。通过onMeasure来确定好视图的大小，通过onLayout来确定每个视图的位置。<br> 这次以设计一个类似LinearLayout的垂直布局为例，主视图里的每个子视图在自定义的ViewGroup中都是垂直排列的。<br> 依旧要创建一个MyViewGroup让它继承自ViewGroup， 然后重写onMeasure和onLayout两个过程：</p>
+<a id="more"></a>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="keyword">package</span> cc.qiblogs.custom;</div><div class="line"></div><div class="line"><span class="keyword">import</span> android.content.Context;</div><div class="line"><span class="keyword">import</span> android.util.AttributeSet;</div><div class="line"><span class="keyword">import</span> android.view.View;</div><div class="line"><span class="keyword">import</span> android.view.ViewGroup;</div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyViewGroup</span> <span class="keyword">extends</span> <span class="title">ViewGroup</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyViewGroup</span><span class="params">(Context context)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>(context);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyViewGroup</span><span class="params">(Context context, AttributeSet attrs)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>(context, attrs);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyViewGroup</span><span class="params">(Context context, AttributeSet attrs, <span class="keyword">int</span> defStyleAttr)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>(context, attrs, defStyleAttr);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onMeasure</span><span class="params">(<span class="keyword">int</span> widthMeasureSpec, <span class="keyword">int</span> heightMeasureSpec)</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> wSize = MeasureSpec.getSize(widthMeasureSpec); <span class="comment">//宽度</span></div><div class="line">        <span class="keyword">int</span> hSize = MeasureSpec.getSize(heightMeasureSpec); <span class="comment">//水平方向布局的模式</span></div><div class="line">        <span class="keyword">int</span> wMode = MeasureSpec.getMode(widthMeasureSpec); <span class="comment">//高度</span></div><div class="line">        <span class="keyword">int</span> hMode = MeasureSpec.getMode(heightMeasureSpec); <span class="comment">//垂直方向布局的模式</span></div><div class="line"></div><div class="line">		<span class="comment">//如果是wrap_content则使用width和height作为最终的宽高</span></div><div class="line">        <span class="keyword">int</span> width = <span class="number">0</span>, height = <span class="number">0</span>;</div><div class="line">        <span class="comment">//子视图数量</span></div><div class="line">        <span class="keyword">int</span> count = getChildCount();</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; count; i++) &#123;</div><div class="line">            View child = getChildAt(i);</div><div class="line">            <span class="comment">//测量子视图</span></div><div class="line">            measureChild(child, widthMeasureSpec, heightMeasureSpec);</div><div class="line">            <span class="comment">//获取子视图的边距参数</span></div><div class="line">            MarginLayoutParams layoutParams = (MarginLayoutParams) child.getLayoutParams();</div><div class="line">            <span class="keyword">int</span> cWidth = child.getMeasuredWidth() +</div><div class="line">                    layoutParams.leftMargin + layoutParams.rightMargin;</div><div class="line">            <span class="keyword">int</span> cHeight = child.getMeasuredHeight() +</div><div class="line">                    layoutParams.topMargin + layoutParams.bottomMargin;</div><div class="line">            <span class="comment">//wrap_content下宽度取最大</span></div><div class="line">            width = Math.max(cWidth, width);</div><div class="line">            <span class="comment">//父视图的总高度</span></div><div class="line">            height += cHeight;</div><div class="line">        &#125;</div><div class="line">		<span class="comment">//设置测量宽高</span></div><div class="line">        setMeasuredDimension(wMode == MeasureSpec.EXACTLY? wSize : width,</div><div class="line">                hMode == MeasureSpec.EXACTLY? hSize : height);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onLayout</span><span class="params">(<span class="keyword">boolean</span> changed, <span class="keyword">int</span> l, <span class="keyword">int</span> t, <span class="keyword">int</span> r, <span class="keyword">int</span> b)</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> count = getChildCount();</div><div class="line">        <span class="comment">//子视图高度之和，用来确定顶点坐标</span></div><div class="line">        <span class="keyword">int</span> height = <span class="number">0</span>;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; count; i++) &#123;</div><div class="line">            View child = getChildAt(i);</div><div class="line">            MarginLayoutParams layoutParams = (MarginLayoutParams) child.getLayoutParams();</div><div class="line">            <span class="comment">//边距</span></div><div class="line">            <span class="keyword">int</span> topMargin = layoutParams.topMargin;</div><div class="line">            <span class="keyword">int</span> leftMargin = layoutParams.leftMargin;</div><div class="line">            <span class="comment">//子视图宽高</span></div><div class="line">            <span class="keyword">int</span> cWidth = child.getMeasuredWidth();</div><div class="line">            <span class="keyword">int</span> cHeight = child.getMeasuredHeight();</div><div class="line">            <span class="comment">//为每个子视图设置四个顶点坐标</span></div><div class="line">            child.layout(leftMargin, topMargin + height, leftMargin + cWidth, topMargin + cHeight + height);</div><div class="line">            height += topMargin + cHeight;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">	<span class="comment">/**</span></div><div class="line">	* 使子视图的layout_margin生效</div><div class="line">	*/</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> LayoutParams <span class="title">generateLayoutParams</span><span class="params">(ViewGroup.LayoutParams p)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> LayoutParams(p);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> LayoutParams <span class="title">generateDefaultLayoutParams</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> LayoutParams <span class="title">generateLayoutParams</span><span class="params">(AttributeSet attrs)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> LayoutParams(getContext(), attrs);</div><div class="line">    &#125;</div><div class="line"></div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">LayoutParams</span> <span class="keyword">extends</span> <span class="title">MarginLayoutParams</span> </span>&#123;</div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="title">LayoutParams</span><span class="params">(Context c, AttributeSet attrs)</span> </span>&#123;</div><div class="line">            <span class="keyword">super</span>(c, attrs);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="title">LayoutParams</span><span class="params">(<span class="keyword">int</span> width, <span class="keyword">int</span> height)</span> </span>&#123;</div><div class="line">            <span class="keyword">super</span>(width, height);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="title">LayoutParams</span><span class="params">(ViewGroup.LayoutParams source)</span> </span>&#123;</div><div class="line">            <span class="keyword">super</span>(source);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="title">LayoutParams</span><span class="params">(ViewGroup.MarginLayoutParams source)</span> </span>&#123;</div><div class="line">            <span class="keyword">super</span>(source);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>  编写XML做个简单的测试：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><div class="line"><span class="php"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span> encoding=<span class="string">"utf-8"</span><span class="meta">?&gt;</span></span></div><div class="line"><span class="tag">&lt;<span class="name">RelativeLayout</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></div><div class="line">    <span class="attr">xmlns:tools</span>=<span class="string">"http://schemas.android.com/tools"</span></div><div class="line">    <span class="attr">xmlns:app</span>=<span class="string">"http://schemas.android.com/apk/res-auto"</span></div><div class="line">    <span class="attr">android:id</span>=<span class="string">"@+id/activity_main"</span></div><div class="line">    <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></div><div class="line">    <span class="attr">android:layout_height</span>=<span class="string">"match_parent"</span></div><div class="line">    <span class="attr">tools:context</span>=<span class="string">"cc.qiblogs.custom.MainActivity"</span>&gt;</div><div class="line">    </div><div class="line">    <span class="tag">&lt;<span class="name">cc.qiblogs.custom.MyViewGroup</span></span></div><div class="line">        <span class="attr">android:layout_width</span>=<span class="string">"wrap_content"</span></div><div class="line">        <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></div><div class="line">        <span class="attr">android:background</span>=<span class="string">"#f96363"</span></div><div class="line">        &gt;</div><div class="line"></div><div class="line">        <span class="tag">&lt;<span class="name">Button</span></span></div><div class="line">            <span class="attr">android:layout_width</span>=<span class="string">"100dp"</span></div><div class="line">            <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></div><div class="line">            <span class="attr">android:text</span>=<span class="string">"btn1"</span></div><div class="line">            <span class="attr">android:layout_marginLeft</span>=<span class="string">"20dp"</span></div><div class="line">            /&gt;</div><div class="line"></div><div class="line">        <span class="tag">&lt;<span class="name">Button</span></span></div><div class="line">            <span class="attr">android:layout_width</span>=<span class="string">"200dp"</span></div><div class="line">            <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></div><div class="line">            <span class="attr">android:text</span>=<span class="string">"btn2"</span></div><div class="line">            <span class="attr">android:layout_marginRight</span>=<span class="string">"30dp"</span></div><div class="line">            /&gt;</div><div class="line"></div><div class="line">        <span class="tag">&lt;<span class="name">Button</span></span></div><div class="line">            <span class="attr">android:layout_width</span>=<span class="string">"70dp"</span></div><div class="line">            <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></div><div class="line">            <span class="attr">android:text</span>=<span class="string">"btn3"</span></div><div class="line">            /&gt;</div><div class="line"></div><div class="line">    <span class="tag">&lt;/<span class="name">cc.qiblogs.custom.MyViewGroup</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">RelativeLayout</span>&gt;</span></div></pre></td></tr></table></figure>
+<p> 结果如图：<br><img src="http://img.blog.csdn.net/20161120211831413" alt="这里写图片描述"></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/11/20/自定义View/" rel="next" title="自定义View">
+                <i class="fa fa-chevron-left"></i> 自定义View
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/12/22/RxJava-Retrofit错误预处理/" rel="prev" title="RxJava&Retrofit如何优雅地处理错误？">
+                RxJava&Retrofit如何优雅地处理错误？ <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/11/20/自定义ViewGroup/"
+           data-title="自定义ViewGroup" data-url="http://yoursite.com/2016/11/20/自定义ViewGroup/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://p3.gexing.com/shaitu/20121007/1357/507119d890452.jpg"
+               alt="QiHuang" />
+          <p class="site-author-name" itemprop="name">QiHuang</p>
+          <p class="site-description motion-element" itemprop="description">hah!</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">53</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">QiHuang</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"scauq"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

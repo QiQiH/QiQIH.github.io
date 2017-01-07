@@ -1,0 +1,690 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="数据结构与算法," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="距上一次写线性表的顺序存储结构已经有一段时间了（详戳http://blog.csdn.net/u010429311/article/details/50933932）,这次主要接着来实现线性表的链式存储结构，即我们通常所说的链表。链表可以用一组任意的存储单元存储线性表的数据元素，而存储数据的这组存储单元可以是连续的，也可以是不连续的。具体看一下图解：在链表中，我们也可以实现链表的创建、插入、删除等">
+<meta property="og:type" content="article">
+<meta property="og:title" content="线性表的存储结构（链式存储结构）">
+<meta property="og:url" content="http://yoursite.com/2016/04/01/线性表的存储结构（链式存储结构）/index.html">
+<meta property="og:site_name" content="QiHuang's Blogs">
+<meta property="og:description" content="距上一次写线性表的顺序存储结构已经有一段时间了（详戳http://blog.csdn.net/u010429311/article/details/50933932）,这次主要接着来实现线性表的链式存储结构，即我们通常所说的链表。链表可以用一组任意的存储单元存储线性表的数据元素，而存储数据的这组存储单元可以是连续的，也可以是不连续的。具体看一下图解：在链表中，我们也可以实现链表的创建、插入、删除等">
+<meta property="og:image" content="http://img.blog.csdn.net/20160401154532452">
+<meta property="og:image" content="http://img.blog.csdn.net/20160401155006923">
+<meta property="og:updated_time" content="2017-01-07T05:47:52.314Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="线性表的存储结构（链式存储结构）">
+<meta name="twitter:description" content="距上一次写线性表的顺序存储结构已经有一段时间了（详戳http://blog.csdn.net/u010429311/article/details/50933932）,这次主要接着来实现线性表的链式存储结构，即我们通常所说的链表。链表可以用一组任意的存储单元存储线性表的数据元素，而存储数据的这组存储单元可以是连续的，也可以是不连续的。具体看一下图解：在链表中，我们也可以实现链表的创建、插入、删除等">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20160401154532452">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/04/01/线性表的存储结构（链式存储结构）/"/>
+
+
+
+
+
+  <title> 线性表的存储结构（链式存储结构） | QiHuang's Blogs </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">QiHuang's Blogs</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">hah!</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-note">
+          <a href="/categories/note" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            随笔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            目录
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/04/01/线性表的存储结构（链式存储结构）/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="QiHuang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://p3.gexing.com/shaitu/20121007/1357/507119d890452.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="QiHuang's Blogs">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="QiHuang's Blogs" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                线性表的存储结构（链式存储结构）
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-04-01T16:00:00+08:00">
+                2016-04-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据结构与算法/" itemprop="url" rel="index">
+                    <span itemprop="name">数据结构与算法</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/04/01/线性表的存储结构（链式存储结构）/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/01/线性表的存储结构（链式存储结构）/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>距上一次写线性表的顺序存储结构已经有一段时间了（详戳<a href="http://blog.csdn.net/u010429311/article/details/50933932）,这次主要接着来实现线性表的链式存储结构，即我们通常所说的链表。" target="_blank" rel="external">http://blog.csdn.net/u010429311/article/details/50933932）,这次主要接着来实现线性表的链式存储结构，即我们通常所说的链表。</a><br>链表可以用一组任意的存储单元存储线性表的数据元素，而存储数据的这组存储单元可以是连续的，也可以是不连续的。具体看一下图解：<br><img src="http://img.blog.csdn.net/20160401154532452" alt="这里写图片描述"><br>在链表中，我们也可以实现链表的创建、插入、删除等操作。其原理如下图：<br><img src="http://img.blog.csdn.net/20160401155006923" alt="这里写图片描述"><br>以下是具体的实现代码：<br><a id="more"></a><br>定义结构体：<br><figure class="highlight cpp"><table><tr><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;malloc.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> OK 1</span></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> ERROR 0</span></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">int</span> ElemType;</div><div class="line"><span class="keyword">typedef</span> <span class="keyword">int</span> Status;</div><div class="line"></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> LNode&#123;</div><div class="line">    ElemType data;    <span class="comment">//结点的数据</span></div><div class="line">    <span class="keyword">struct</span> LNode *next;   <span class="comment">//指向下一结点的指针</span></div><div class="line">&#125; LNode, *LinkList;</div></pre></td></tr></table></figure></p>
+<p>创建链表：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><div class="line"><span class="comment">/*</span></div><div class="line">*逆序往链表里插入n个元素</div><div class="line">*/</div><div class="line"><span class="function">Status <span class="title">createList</span><span class="params">(LinkList &amp;L, <span class="keyword">int</span> n)</span> </span>&#123;</div><div class="line">    LinkList p;   </div><div class="line">    L = (LinkList) <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(LNode));  <span class="comment">//申请结点空间</span></div><div class="line">    L-&gt;next = <span class="literal">NULL</span>;   <span class="comment">//建立带头结点的链表</span></div><div class="line">    <span class="keyword">for</span> (; n &gt; <span class="number">0</span>; n--) &#123;</div><div class="line">        p = (LinkList) <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(LNode)); <span class="comment">//生成新结点</span></div><div class="line">        <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;p-&gt;data);  <span class="comment">//输入结点的元素</span></div><div class="line">        p-&gt;next = L-&gt;next;   <span class="comment">//插入到表头</span></div><div class="line">        L-&gt;next = p; </div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> OK;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>插入元素：</p>
+<figure class="highlight xl"><table><tr><td class="code"><pre><div class="line"><span class="comment">/*</span></div><div class="line">*往链表的第i个位置插入元素</div><div class="line">*/</div><div class="line">Status listInsert(LinkList &amp;L, int i, ElemType e) &#123;</div><div class="line">    LinkList p, s;</div><div class="line">    p = L;</div><div class="line">    int j = <span class="number">0</span>;</div><div class="line">    <span class="keyword">while</span> (p &amp;&amp; j &lt; i - <span class="number">1</span>) &#123;  <span class="comment">//寻找第i-1个结点</span></div><div class="line">        <span class="function"><span class="title">p</span> = p-&gt;</span>next;  </div><div class="line">        j++;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (!p || j &gt; i - <span class="number">1</span>) return ERROR;</div><div class="line">    s = (LinkList) malloc(sizeof(LNode)); <span class="comment">//申请新结点</span></div><div class="line">    <span class="function"><span class="title">s</span>-&gt;</span><span class="keyword">data</span> = e;  <span class="comment">//插入新的结点</span></div><div class="line">    <span class="function"><span class="title">s</span>-&gt;</span><span class="function"><span class="title">next</span> = p-&gt;</span>next;</div><div class="line">    <span class="function"><span class="title">p</span>-&gt;</span>next = s;</div><div class="line">    return OK;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>删除元素：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><div class="line">Status listDelete(LinkList &amp;L, int i, ElemType &amp;e) &#123;</div><div class="line">    LinkList p, q;</div><div class="line">    p = L;</div><div class="line">    int j = <span class="number">0</span>;</div><div class="line">    <span class="keyword">while</span> (p-&gt;<span class="keyword">next</span> &amp;&amp; j &lt; i - <span class="number">1</span>) &#123;  <span class="regexp">//</span>寻找第i个结点</div><div class="line">        p = p-&gt;<span class="keyword">next</span>;</div><div class="line">        j++;</div><div class="line">    &#125;</div><div class="line">    if (!p-&gt;<span class="keyword">next</span> || j &gt; i - <span class="number">1</span>) <span class="keyword">return</span> ERROR;</div><div class="line">    q = p-&gt;<span class="keyword">next</span>;  <span class="regexp">//</span>删除结点</div><div class="line">    p-&gt;<span class="keyword">next</span> = q-&gt;<span class="keyword">next</span>;</div><div class="line">    e = q-&gt;data;</div><div class="line">    free(q);  <span class="regexp">//</span>释放被删除结点的空间</div><div class="line">    <span class="keyword">return</span> OK;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>遍历链表：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><div class="line">Status loadList(LinkList &amp;L) &#123;</div><div class="line">    if (L-&gt;<span class="keyword">next</span> == NULL) &#123;</div><div class="line">        <span class="keyword">return</span> ERROR;</div><div class="line">    &#125;</div><div class="line">    LinkList p;</div><div class="line">    p = L-&gt;<span class="keyword">next</span>;  <span class="regexp">//</span>注意，头结点没有存放数值，应从L-&gt;<span class="keyword">next</span>开始遍历</div><div class="line">    <span class="keyword">while</span>(p) &#123;    <span class="regexp">//</span>遍历结点，输出数值</div><div class="line">        printf(<span class="string">"%d "</span>, p-&gt;data);</div><div class="line">        p = p-&gt;<span class="keyword">next</span>;</div><div class="line">    &#125;</div><div class="line">    printf(<span class="string">"\n"</span>);</div><div class="line">    <span class="keyword">return</span> OK;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/数据结构与算法/" rel="tag"># 数据结构与算法</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/01/简简简单工厂模式—/" rel="next" title="简单工厂模式">
+                <i class="fa fa-chevron-left"></i> 简单工厂模式
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/04/01/双向链表的实现/" rel="prev" title="双向链表的实现">
+                双向链表的实现 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/04/01/线性表的存储结构（链式存储结构）/"
+           data-title="线性表的存储结构（链式存储结构）" data-url="http://yoursite.com/2016/04/01/线性表的存储结构（链式存储结构）/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://p3.gexing.com/shaitu/20121007/1357/507119d890452.jpg"
+               alt="QiHuang" />
+          <p class="site-author-name" itemprop="name">QiHuang</p>
+          <p class="site-description motion-element" itemprop="description">hah!</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">53</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">QiHuang</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"scauq"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

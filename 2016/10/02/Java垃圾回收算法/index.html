@@ -1,0 +1,720 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="JVM," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="垃圾回收目的在于回收那些无用对象占用的内存，以释放出空间，减缓程序设计的压力。既然Java实现了垃圾的自动回收，那么就有必要了解一下它是如何实现垃圾回收的。
+##如何判断对象“已死”？在垃圾收集器对堆进行回收前，首先需要做的事情就是判断哪些对象已经不会再被使用。主要有两种方式实现判定：
+###引用计数算法给每个对象添加一个引用计数器（初始值为1），每当有一个地方引用它的时候，计数器就加一。每当引用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java垃圾回收算法">
+<meta property="og:url" content="http://yoursite.com/2016/10/02/Java垃圾回收算法/index.html">
+<meta property="og:site_name" content="QiHuang's Blogs">
+<meta property="og:description" content="垃圾回收目的在于回收那些无用对象占用的内存，以释放出空间，减缓程序设计的压力。既然Java实现了垃圾的自动回收，那么就有必要了解一下它是如何实现垃圾回收的。
+##如何判断对象“已死”？在垃圾收集器对堆进行回收前，首先需要做的事情就是判断哪些对象已经不会再被使用。主要有两种方式实现判定：
+###引用计数算法给每个对象添加一个引用计数器（初始值为1），每当有一个地方引用它的时候，计数器就加一。每当引用">
+<meta property="og:image" content="http://img.blog.csdn.net/20161002145928195">
+<meta property="og:image" content="http://image.codes51.com/Article/image/20160321/20160321124229_9001.png">
+<meta property="og:image" content="http://image.codes51.com/Article/image/20160321/20160321124229_7751.png">
+<meta property="og:image" content="http://image.codes51.com/Article/image/20160321/20160321124230_0720.png">
+<meta property="og:image" content="http://img.blog.csdn.net/20161002154650992">
+<meta property="og:updated_time" content="2017-01-07T05:47:52.252Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java垃圾回收算法">
+<meta name="twitter:description" content="垃圾回收目的在于回收那些无用对象占用的内存，以释放出空间，减缓程序设计的压力。既然Java实现了垃圾的自动回收，那么就有必要了解一下它是如何实现垃圾回收的。
+##如何判断对象“已死”？在垃圾收集器对堆进行回收前，首先需要做的事情就是判断哪些对象已经不会再被使用。主要有两种方式实现判定：
+###引用计数算法给每个对象添加一个引用计数器（初始值为1），每当有一个地方引用它的时候，计数器就加一。每当引用">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20161002145928195">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/10/02/Java垃圾回收算法/"/>
+
+
+
+
+
+  <title> Java垃圾回收算法 | QiHuang's Blogs </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">QiHuang's Blogs</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">hah!</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-note">
+          <a href="/categories/note" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            随笔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            目录
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/10/02/Java垃圾回收算法/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="QiHuang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://p3.gexing.com/shaitu/20121007/1357/507119d890452.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="QiHuang's Blogs">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="QiHuang's Blogs" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Java垃圾回收算法
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-10-02T16:07:00+08:00">
+                2016-10-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JVM/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/10/02/Java垃圾回收算法/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/10/02/Java垃圾回收算法/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>垃圾回收目的在于回收那些无用对象占用的内存，以释放出空间，减缓程序设计的压力。既然Java实现了垃圾的自动回收，那么就有必要了解一下它是如何实现垃圾回收的。</p>
+<p>##<strong>如何判断对象“已死”？</strong><br>在垃圾收集器对堆进行回收前，首先需要做的事情就是判断哪些对象已经不会再被使用。主要有两种方式实现判定：</p>
+<p>###<strong>引用计数算法</strong><br>给每个对象添加一个引用计数器（初始值为1），每当有一个地方引用它的时候，计数器就加一。每当引用失效时，计数器就减一。任何时候当计数器为0的时候，就代表着这个对象不能再被引用。<br>引用计数算法的判定效率高，但是却很难解决对象相互引用的问题。</p>
+<p>###<strong>根搜索算法</strong><br>从一系列名为“GC ROOT”的对象为起点，开始向下搜索，搜索的路径称为引用链。当一个对象到GC ROOT没有任何引用链，则说明此对象是不可用的。<br>在Java语言里，可作为GC Roots的对象包括下面几种：</p>
+<ul>
+<li>虚拟机栈（栈帧中的本地变量表）中引用的对象。</li>
+<li>方法区中的类静态属性引用的对象。</li>
+<li>方法区中的常量引用的对象。</li>
+<li>本地方法栈中JNI（Native方法）的引用对象。</li>
+</ul>
+<p>可以通过下图来理解：<br><img src="http://img.blog.csdn.net/20161002145928195" alt="这里写图片描述"><br><a id="more"></a></p>
+<p>##<strong>垃圾回收算法</strong><br>既然已经可以判定哪些对象已经死亡，那么就要对这些对象所占用的空间进行回收。垃圾回收主要有以下算法：</p>
+<p>###<strong>标记-清除算法</strong><br>此算法主要分两个阶段：标记阶段和清除阶段。首先，标记那些需要被回收的对象，然后统计回收掉这些被标记的对象。如下图所示：<br><img src="http://image.codes51.com/Article/image/20160321/20160321124229_9001.png" alt="这里写图片描述"><br>其实，不难发现有个问题，就是当标记的对象被回收后，内存中产生了大量的内存碎片。如果碎片过多，会导致下次有一个占用内存空间较大的对象需要分配，却无法找到足够的连续空间的问题出现，进而有提前了下一次GC操作。</p>
+<p>###<strong>复制算法</strong><br>这个算法的主要思想是将内存平均范围分为两块，每次只用其中一块。当一块内存用完了，就像其中存活的对象移动到另一块，然后清理已使用过的内存。这样就可以避免产生内存碎片，但同时代价也高，因为可用的内存仅仅变成了总内存的一半。<br>复制算法示意图：<br><img src="http://image.codes51.com/Article/image/20160321/20160321124229_7751.png" alt="这里写图片描述"></p>
+<p>###<strong>标记-整理算法</strong><br>标记整理算法的主要思想是：首先标记内存中需要回收的对象，这点与标记-清除算法一样，然后让存活的内存都向一边移动，用完成后，清理里掉存活内存边界外的内存。<br><img src="http://image.codes51.com/Article/image/20160321/20160321124230_0720.png" alt="这里写图片描述"></p>
+<p>###<strong>分代收集算法</strong><br>很多虚拟机都采用此算法。根据对象的存活周期把堆分为新生代和老年代。由于新生代中经常会有大量对象死亡，所以采用了复制算法，仅仅需要复制少量的存活对象。而老年代存活率高，占用空间大，就需要使用标记-清除或是标记-整理算法来收集。</p>
+<p>##<strong>垃圾收集器</strong><br>有了回收垃圾的思想，那必然需要垃圾收集器来去实现。垃圾收集器主要有以下类型：</p>
+<p>###<strong>Serial/Serial Old收集器</strong><br>Serial是一个针对新生代的单线程收集器。当执行垃圾回收时会停止所有工作线程，采用复制算法。而Serial Old则是针对老年代的收集器，采用标记-整理。此收集器简单高效，但却会发生停顿现象。</p>
+<p>###<strong>ParNew收集器</strong><br>与Serial收集器相比没有太多变化，但该收集器是多线程版本，实现了垃圾收集的并发操作。即用户线程可以和垃圾回收的线程基本上并发进行。</p>
+<p>###<strong>Parallel Scavenge收集器</strong><br>Parallel Scavenge收集器是一个新生代的多线程收集器，它在回收期间不需要暂停其他用户线程，其采用的是复制算法。该收集器主要是为了达到一个可控的吞吐量。</p>
+<p>###<strong>Parallel Old</strong><br>Parallel Old是Parallel Scavenge收集器的老年代版本，使用标记-整理算法。</p>
+<p>###<strong>CMC收集器</strong><br>该收集器是一种以获取最短回收停顿时间为目标的收集器。采用的是标记-清除算法。其主要步骤为初始标记、并发标记、重新标记、并发清除。</p>
+<p>###<strong>G1收集器</strong><br>G1收集器采用标记-整理算法来实现垃圾回收，不会产生内存碎片。同时能非常精确地控制停顿。</p>
+<p>##<strong>内存分配策略</strong><br>示意图：<br><img src="http://img.blog.csdn.net/20161002154650992" alt="这里写图片描述"><br>堆中把内存分为Eden区和Survivor区。大多数情况下对象会在新生代Eden区和Survivor的From区分配。当Eden区没有足够空间时，则会发生一次Minor GC。GC后，如果有足够空间存放下一个对象，仍然会存放在Eden区和Survivor的From区。GC时，会将Eden区和From区的存活对象转移到To区，然后清理Eden和From区。如果在转移时To区不够空间存放对象，这个对象就会被移动到老年代中去。在GC完成后，使用的便是Eden区和To区，下次垃圾回收就会将存活对象移动到From区中，循环往复。<br>每当一个对象在Survivor区中躲过一次GC，年龄就加一。当年龄到达15时，就要被移到老年代中去。当然，并不是一定要年龄到达15才会被移到老年代中，如果Survivor区中相同年龄的所有对象大小总和超过Survivor容量的一半，年龄大于等于这个界限年龄的对象就会直接进入老年代。<br>此外大对象也会直接进入老年代。如：　byte[] bs= new byte[4<em>1024</em>1024]；</p>
+<p>###<strong>关于Minor GC与Full FC</strong></p>
+<ul>
+<li>Minor GC:新生代垃圾收集，由于新生代经常会有大量对象死亡，所以Minor GC发生频繁。</li>
+<li>Full FC：老年代垃圾收集。经常会至少伴随一个Minor GC。速度较Minor GC慢。</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/JVM/" rel="tag"># JVM</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/10/02/Java内存模型/" rel="next" title="Java内存模型">
+                <i class="fa fa-chevron-left"></i> Java内存模型
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/10/14/使用AIDL跨进程通信/" rel="prev" title="使用AIDL跨进程通信">
+                使用AIDL跨进程通信 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/10/02/Java垃圾回收算法/"
+           data-title="Java垃圾回收算法" data-url="http://yoursite.com/2016/10/02/Java垃圾回收算法/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://p3.gexing.com/shaitu/20121007/1357/507119d890452.jpg"
+               alt="QiHuang" />
+          <p class="site-author-name" itemprop="name">QiHuang</p>
+          <p class="site-description motion-element" itemprop="description">hah!</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">53</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">QiHuang</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"scauq"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

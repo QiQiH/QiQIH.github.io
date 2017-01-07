@@ -1,0 +1,734 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Java," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="在学习散列集集或者图（Map）时，我们也许对这两个方法并不陌生：equals()和hashCode()；添加到散列集中的对象必须以正确地方式实现hashCode()方法才能确保集合中不出现重复的值。最近在阅读《Thinking in Java》这本书时，里面有对其系统地介绍，现将其总结一下：
+初步了解散列码在开发中，我们对于HashMap的使用并不陌生，但有时却也会犯错。我们先看一个例子：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="简析散列和散列码">
+<meta property="og:url" content="http://yoursite.com/2016/03/28/简析散列和散列码/index.html">
+<meta property="og:site_name" content="QiHuang's Blogs">
+<meta property="og:description" content="在学习散列集集或者图（Map）时，我们也许对这两个方法并不陌生：equals()和hashCode()；添加到散列集中的对象必须以正确地方式实现hashCode()方法才能确保集合中不出现重复的值。最近在阅读《Thinking in Java》这本书时，里面有对其系统地介绍，现将其总结一下：
+初步了解散列码在开发中，我们对于HashMap的使用并不陌生，但有时却也会犯错。我们先看一个例子：">
+<meta property="og:image" content="http://my.csdn.net/uploads/201203/26/1332743845_8318.jpg">
+<meta property="og:image" content="http://img.blog.csdn.net/20160328193133437">
+<meta property="og:updated_time" content="2017-01-07T05:47:52.314Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="简析散列和散列码">
+<meta name="twitter:description" content="在学习散列集集或者图（Map）时，我们也许对这两个方法并不陌生：equals()和hashCode()；添加到散列集中的对象必须以正确地方式实现hashCode()方法才能确保集合中不出现重复的值。最近在阅读《Thinking in Java》这本书时，里面有对其系统地介绍，现将其总结一下：
+初步了解散列码在开发中，我们对于HashMap的使用并不陌生，但有时却也会犯错。我们先看一个例子：">
+<meta name="twitter:image" content="http://my.csdn.net/uploads/201203/26/1332743845_8318.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/03/28/简析散列和散列码/"/>
+
+
+
+
+
+  <title> 简析散列和散列码 | QiHuang's Blogs </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">QiHuang's Blogs</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">hah!</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-note">
+          <a href="/categories/note" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            随笔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            目录
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/03/28/简析散列和散列码/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="QiHuang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://p3.gexing.com/shaitu/20121007/1357/507119d890452.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="QiHuang's Blogs">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="QiHuang's Blogs" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                简析散列和散列码
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-03-28T19:42:00+08:00">
+                2016-03-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/03/28/简析散列和散列码/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/03/28/简析散列和散列码/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在学习散列集集或者图（Map）时，我们也许对这两个方法并不陌生：equals()和hashCode()；添加到散列集中的对象必须以正确地方式实现hashCode()方法才能确保集合中不出现重复的值。最近在阅读《Thinking in Java》这本书时，里面有对其系统地介绍，现将其总结一下：</p>
+<h2 id="初步了解散列码"><a href="#初步了解散列码" class="headerlink" title="初步了解散列码"></a>初步了解散列码</h2><p>在开发中，我们对于HashMap的使用并不陌生，但有时却也会犯错。我们先看一个例子：</p>
+<a id="more"></a>
+<figure class="highlight arduino"><table><tr><td class="code"><pre><div class="line"><span class="comment">//定义人这个类，设定一个编号</span></div><div class="line"><span class="keyword">class</span> Person &#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> cardId;</div><div class="line">    <span class="keyword">public</span> Person(<span class="keyword">int</span> cardId) &#123;<span class="keyword">this</span>.cardId= cardId;&#125;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    <span class="keyword">public</span> <span class="keyword">String</span> toString() &#123;</div><div class="line">        <span class="built_in">return</span> <span class="string">"Person#"</span> + cardId;  <span class="comment">//返回编号</span></div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//人的性别</span></div><div class="line"><span class="keyword">class</span> Sex &#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span>  i = (<span class="keyword">int</span>) (Math.<span class="built_in">random</span>() * <span class="number">2</span>);</div><div class="line"></div><div class="line">    @Override</div><div class="line">    <span class="keyword">public</span> <span class="keyword">String</span> toString() &#123;</div><div class="line">        <span class="built_in">return</span> i == <span class="number">0</span>? <span class="string">"male"</span> : <span class="string">"female"</span>;  <span class="comment">//随机返回一个性别</span></div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="keyword">class</span> TestMap &#123;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> main(<span class="keyword">String</span>[] args) throws Exception&#123;</div><div class="line">        detectSex(Person.<span class="keyword">class</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;T extends Person&gt; <span class="keyword">void</span> detectSex(Class&lt;T&gt; type) throws Exception &#123;</div><div class="line">        Constructor&lt;T&gt; person = type.getConstructor(<span class="keyword">int</span>.<span class="keyword">class</span>);</div><div class="line">        Map&lt;Person, Sex&gt; <span class="built_in">map</span> = <span class="keyword">new</span> HashMap&lt;&gt;();  <span class="comment">//创建一个HashMap用于存放人和性别的键值对</span></div><div class="line">        <span class="built_in">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</div><div class="line">            <span class="built_in">map</span>.<span class="built_in">put</span>(person.newInstance(i), <span class="keyword">new</span> Sex());</div><div class="line">        &#125;</div><div class="line">        System.out.<span class="built_in">println</span>(<span class="string">"map:"</span> + <span class="built_in">map</span>);</div><div class="line">        Person p = person.newInstance(<span class="number">3</span>);  <span class="comment">//创建一个编号为3的人，并在map中查找此人性别</span></div><div class="line">        System.out.<span class="built_in">println</span>(<span class="string">"查找某人性别"</span> + p);</div><div class="line">        <span class="built_in">if</span> (<span class="built_in">map</span>.containsKey(p))</div><div class="line">            System.out.<span class="built_in">println</span>(<span class="built_in">map</span>.<span class="built_in">get</span>(p));</div><div class="line">        <span class="built_in">else</span></div><div class="line">            System.out.<span class="built_in">println</span>(<span class="string">"无此人"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>输出结果：</p>
+<figure class="highlight lasso"><table><tr><td class="code"><pre><div class="line"><span class="built_in">map</span>:&#123;Person#7=female, Person#0=female, Person#9=male, Person#3=female, Person#5=male, Person#8=female, Person#2=male, Person#4=male, Person#1=male, Person#6=male&#125;</div><div class="line">查找Person#3性别</div><div class="line">无此人</div></pre></td></tr></table></figure>
+<p>这个程序看起来简单，但却在结果上出现了错误。原因在于Person默认继承于Object类，所以使用了Object类的hashCode()方法来生成散列码（根据地址并通过一定的算法产生）。明显，第一次创建的和第二次创建的Person#3地址不同，散列码是不同的，因此无法找到此人。所以，我们要以正确地形式实现hashCode()方法。当然，<strong>在覆盖hashCode()方法时，也要覆盖equals()方法</strong>，因为这个方法也来自Object类，也需要以正确地方式实现。<br>这里提到equals()方法时，我们必须要注意以下几点：</p>
+<blockquote>
+<p>1）<strong>自反性</strong> 对于任意x, x.equals(x)必定返回true。<br>2）<strong>对称性</strong> 对于任意x,y，x.equals(y)与y.equals(x)的返回值相同。<br>3）<strong>传递性</strong> 对于任意x,y,z，如果x.equals(y)与y.equals(z)返回值相同，那么x.equals(z)返回值也相同。<br>4）<strong>一致性</strong> 对于任意的x,y，无论x.equals(y)执行多少次，返回值要么是true，要么为false。<br>5）对于任意x != null, x.equals(null)返回false。<br>（作为学生党第一次感觉自己学的离散结构知识用上了T-T）</p>
+</blockquote>
+<p>那么有了这些理念后再修改一下Person类：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> cardId; </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Person</span><span class="params">(<span class="keyword">int</span> cardId)</span> </span>&#123;<span class="keyword">this</span>.cardId= cardId;&#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="string">"Person#"</span> + cardId;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(Object obj)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span>  (obj <span class="keyword">instanceof</span> Person &amp;&amp; (((Person) obj).cardId == cardId)); </div><div class="line"></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> cardId;  <span class="comment">//把唯一的编号作为散列码</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>再运行看结果：</p>
+<figure class="highlight lasso"><table><tr><td class="code"><pre><div class="line"><span class="built_in">map</span>:&#123;Person#0=male, Person#1=male, Person#2=female, Person#3=female, Person#4=male, Person#5=female, Person#6=male, Person#7=male, Person#8=female, Person#9=female&#125;</div><div class="line">查找Person#3性别</div><div class="line">female</div></pre></td></tr></table></figure>
+<p>如果我们比较时至比较编号，并且把编号作为散列码，这样子覆盖hashCode()和equals()方法程序就正常输出结果了。</p>
+<h2 id="散列的实现方式"><a href="#散列的实现方式" class="headerlink" title="散列的实现方式"></a>散列的实现方式</h2><p>在我们了解散列的实现方式之前，首先要知道散列的意义是什么：散列不仅能够方便在某些情况下，如（Map），通过一个对象来查找另一个对象，它的价值更在于速度，即散列能使查询得以快速进行。<br>那么散列是如何实现的呢？我们知道存储一组元素最快的数据结构是<strong>数组</strong>，因此使用了数组来存储<strong>键的信息</strong>，该数组形成的表又称散列表，哈希表。数组并不保存键本身，而是保存通过算法将键对象转换过来的一个数字，而这个数字作为数组的下标，这个数字称为散列码。就像上面Person类中，覆盖了hashCode()方法，这个方法称为散列函数，用于产生散列码。<br>那么我们可能会想，如果说当前有很多个对象，即有很多键，数组又是固定大小的，会不会出现存储不下的现象？答案是这样的：不同的键值可以产生相同的下标，<strong>可能</strong>会有冲突（如果没有冲突，那么这个散列函数称为<strong>完美散列函数</strong>）。那么怎么样解决冲突呢？<br>解决方案是这样子的：冲突通常由<strong>外部链接</strong>处理，数组并不保存值，而是保存一个list，然后对list中的值使用equals()方法来查询（显然这里的查询会慢一点）。如果我们存储的数值比较少，不产生冲突的话，那么就可以直接通过数组下标确定位置，索引的速度就会相当快（这也是HashSet,HashMap索引快的原因）。我们可以看一个图理解一下：<br><img src="http://my.csdn.net/uploads/201203/26/1332743845_8318.jpg" alt="这里写图片描述"></p>
+<h2 id="关于String与equals-、hashCode"><a href="#关于String与equals-、hashCode" class="headerlink" title="关于String与equals()、hashCode()"></a>关于String与equals()、hashCode()</h2><p>我们知道，当我们执行下面的语句时：</p>
+<figure class="highlight arduino"><table><tr><td class="code"><pre><div class="line"><span class="keyword">String</span> s = <span class="keyword">new</span> <span class="keyword">String</span>(<span class="string">"scau"</span>);</div><div class="line"><span class="keyword">String</span> s1 = <span class="keyword">new</span> <span class="keyword">String</span>(<span class="string">"scau"</span>);</div></pre></td></tr></table></figure>
+<p>这里会产生<strong>三</strong>个对象，如图所示:<br><img src="http://img.blog.csdn.net/20160328193133437" alt="这里写图片描述"><br>显然，当我们用”==”比较两个String对象是返回false，即两个对象是不相等的。但我们用equals()比较时，却能返回true（可以得知String覆盖了equals()方法）。但是它们却共同映射到同一块内存区域，它们的hashCode()产生相同的值。我们可以测试一下：</p>
+<figure class="highlight arduino"><table><tr><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> main(<span class="keyword">String</span>[] args) &#123;</div><div class="line">	<span class="keyword">String</span> s = <span class="keyword">new</span> <span class="keyword">String</span>(<span class="string">"scau"</span>);</div><div class="line">	<span class="keyword">String</span> s1 = <span class="keyword">new</span> <span class="keyword">String</span>(<span class="string">"scau"</span>);</div><div class="line">	System.out.<span class="built_in">println</span>(s.hashCode() == s1.hashCode());</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>结果：true</p>
+</blockquote>
+<p>Bingo!</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/03/26/关于字符串String，你所需要注意的细节/" rel="next" title="关于字符串String，你所需要注意的细节">
+                <i class="fa fa-chevron-left"></i> 关于字符串String，你所需要注意的细节
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/03/30/单例模式/" rel="prev" title="单例模式">
+                单例模式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/03/28/简析散列和散列码/"
+           data-title="简析散列和散列码" data-url="http://yoursite.com/2016/03/28/简析散列和散列码/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://p3.gexing.com/shaitu/20121007/1357/507119d890452.jpg"
+               alt="QiHuang" />
+          <p class="site-author-name" itemprop="name">QiHuang</p>
+          <p class="site-description motion-element" itemprop="description">hah!</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">53</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#初步了解散列码"><span class="nav-number">1.</span> <span class="nav-text">初步了解散列码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#散列的实现方式"><span class="nav-number">2.</span> <span class="nav-text">散列的实现方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关于String与equals-、hashCode"><span class="nav-number">3.</span> <span class="nav-text">关于String与equals()、hashCode()</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">QiHuang</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"scauq"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

@@ -1,0 +1,688 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="前言：GridView可用于展示多行多列的统一格式数据，但本身没有多选操作。现通过一系列代码实现GridView的长按多选操作，可以先看一个示例图。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android中GridView实现长按多选功能">
+<meta property="og:url" content="http://yoursite.com/2016/02/24/Android中GridView实现长按多选功能/index.html">
+<meta property="og:site_name" content="QiHuang's Blogs">
+<meta property="og:description" content="前言：GridView可用于展示多行多列的统一格式数据，但本身没有多选操作。现通过一系列代码实现GridView的长按多选操作，可以先看一个示例图。">
+<meta property="og:image" content="http://img.blog.csdn.net/20160224225227364">
+<meta property="og:updated_time" content="2017-01-07T05:47:52.236Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android中GridView实现长按多选功能">
+<meta name="twitter:description" content="前言：GridView可用于展示多行多列的统一格式数据，但本身没有多选操作。现通过一系列代码实现GridView的长按多选操作，可以先看一个示例图。">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20160224225227364">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/02/24/Android中GridView实现长按多选功能/"/>
+
+
+
+
+
+  <title> Android中GridView实现长按多选功能 | QiHuang's Blogs </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">QiHuang's Blogs</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">hah!</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-note">
+          <a href="/categories/note" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            随笔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            目录
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/02/24/Android中GridView实现长按多选功能/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="QiHuang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://p3.gexing.com/shaitu/20121007/1357/507119d890452.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="QiHuang's Blogs">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="QiHuang's Blogs" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Android中GridView实现长按多选功能
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-02-24T22:56:00+08:00">
+                2016-02-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/02/24/Android中GridView实现长按多选功能/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/02/24/Android中GridView实现长按多选功能/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>前言：GridView可用于展示多行多列的统一格式数据，但本身没有多选操作。现通过一系列代码实现GridView的长按多选操作，可以先看一个示例图。<br><img src="http://img.blog.csdn.net/20160224225227364" alt="这里写图片描述"><br><a id="more"></a><br>以下是实现该功能的主要代码：<br>MainActivity.java<br><figure class="highlight processing"><table><tr><td class="code"><pre><div class="line"><span class="keyword">package</span> com.mygridview;</div><div class="line"></div><div class="line"><span class="keyword">import</span> android.app.AlertDialog;</div><div class="line"><span class="keyword">import</span> android.content.DialogInterface;</div><div class="line"><span class="keyword">import</span> android.support.v7.app.ActionBar;</div><div class="line"><span class="keyword">import</span> android.support.v7.app.AppCompatActivity;</div><div class="line"><span class="keyword">import</span> android.os.Bundle;</div><div class="line"><span class="keyword">import</span> android.view.KeyEvent;</div><div class="line"><span class="keyword">import</span> android.view.View;</div><div class="line"><span class="keyword">import</span> android.widget.AdapterView;</div><div class="line"><span class="keyword">import</span> android.widget.Button;</div><div class="line"><span class="keyword">import</span> android.widget.CheckBox;</div><div class="line"><span class="keyword">import</span> android.widget.GridView;</div><div class="line"><span class="keyword">import</span> android.widget.RelativeLayout;</div><div class="line"><span class="keyword">import</span> android.widget.TextView;</div><div class="line"><span class="keyword">import</span> android.widget.Toast;</div><div class="line"></div><div class="line"><span class="keyword">import</span> java.util.ArrayList;</div><div class="line"><span class="keyword">import</span> java.util.<span class="keyword">HashMap</span>;</div><div class="line"></div><div class="line"><span class="keyword">public</span> class MainActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener &#123;</div><div class="line">    <span class="keyword">private</span> ActionBar actionBar;</div><div class="line">    <span class="keyword">private</span> Button btnCancel, btnDel, btnSelectAll, btnClear;</div><div class="line">    <span class="keyword">private</span> RelativeLayout headerLayout;</div><div class="line">    <span class="keyword">private</span> TextView numText;</div><div class="line">    <span class="keyword">private</span> GridView gridView;</div><div class="line">    <span class="keyword">private</span> ArrayList&lt;<span class="keyword">HashMap</span>&lt;<span class="keyword">String</span>, <span class="keyword">Object</span>&gt;&gt; items; <span class="comment">//每一个item</span></div><div class="line">    <span class="keyword">private</span> ArrayList&lt;Boolean&gt; selectItems; <span class="comment">//用于存储已选中项目的位置</span></div><div class="line">    <span class="keyword">private</span> MyAdapter adapter;</div><div class="line">    <span class="keyword">private</span> <span class="built_in">boolean</span> isState;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> onCreate(Bundle savedInstanceState) &#123;</div><div class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</div><div class="line">        setContentView(R.layout.activity_main);</div><div class="line">        initView();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="keyword">void</span> initView() &#123;</div><div class="line">        actionBar = getSupportActionBar();</div><div class="line">        actionBar.setTitle(<span class="string">"GridView"</span>);</div><div class="line"></div><div class="line">        numText = (TextView) findViewById(R.id.number);</div><div class="line"></div><div class="line">        btnCancel = (Button) findViewById(R.id.btn_cancel);</div><div class="line">        btnDel = (Button) findViewById(R.id.btn_del);</div><div class="line">        btnSelectAll = (Button) findViewById(R.id.btn_select_all);</div><div class="line">        btnClear = (Button) findViewById(R.id.btn_clear);</div><div class="line">        btnCancel.setOnClickListener(<span class="keyword">this</span>);</div><div class="line">        btnDel.setOnClickListener(<span class="keyword">this</span>);</div><div class="line">        btnSelectAll.setOnClickListener(<span class="keyword">this</span>);</div><div class="line">        btnClear.setOnClickListener(<span class="keyword">this</span>);</div><div class="line"></div><div class="line">        headerLayout = (RelativeLayout) findViewById(R.id.header);</div><div class="line">        gridView = (GridView) findViewById(R.id.grid_view);</div><div class="line">        items = <span class="keyword">new</span> ArrayList&lt;&gt;();</div><div class="line">        selectItems = <span class="keyword">new</span> ArrayList&lt;&gt;();</div><div class="line">        <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; <span class="number">20</span>; i++) &#123;</div><div class="line">            <span class="keyword">HashMap</span>&lt;<span class="keyword">String</span>, <span class="keyword">Object</span>&gt; item = <span class="keyword">new</span> <span class="keyword">HashMap</span>&lt;&gt;();</div><div class="line">            item.put(<span class="string">"image"</span>, R.drawable.<span class="built_in">image</span>);</div><div class="line">            items.<span class="built_in">add</span>(item);</div><div class="line">        &#125;</div><div class="line">        adapter = <span class="keyword">new</span> MyAdapter(<span class="keyword">this</span>, items, R.layout.<span class="built_in">image</span>, <span class="keyword">new</span> <span class="keyword">String</span>[]&#123;<span class="string">"image"</span>&#125;, <span class="keyword">new</span> <span class="built_in">int</span>[]&#123;R.id.my_image&#125;);</div><div class="line">        gridView.setAdapter(adapter);</div><div class="line">        gridView.setOnItemClickListener(<span class="keyword">this</span>);</div><div class="line">        gridView.setOnItemLongClickListener(<span class="keyword">this</span>);</div><div class="line"></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">public</span> ArrayList&lt;Boolean&gt; getSelectItems() &#123;</div><div class="line">        <span class="keyword">return</span> selectItems;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    <span class="keyword">public</span> <span class="keyword">void</span> onClick(View v) &#123;</div><div class="line">        <span class="keyword">switch</span> (v.getId()) &#123;</div><div class="line">            <span class="keyword">case</span> R.id.btn_cancel :</div><div class="line">                selectItems.<span class="built_in">clear</span>();</div><div class="line">                numText.setText(<span class="string">"已选择1项"</span>);</div><div class="line">                adapter.setIsState(<span class="keyword">false</span>);</div><div class="line">                setState(<span class="keyword">false</span>);</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            <span class="keyword">case</span> R.id.btn_clear :</div><div class="line">                setSelectAll(<span class="keyword">false</span>);</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            <span class="keyword">case</span> R.id.btn_select_all:</div><div class="line">                setSelectAll(<span class="keyword">true</span>);</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            <span class="keyword">case</span> R.id.btn_del:</div><div class="line">                delSelections();</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    <span class="keyword">public</span> <span class="keyword">void</span> onItemClick(AdapterView&lt;?&gt; parent, View view, <span class="built_in">int</span> position, <span class="keyword">long</span> id) &#123;</div><div class="line">        <span class="keyword">if</span> (isState) &#123;</div><div class="line">            CheckBox checkBox = (CheckBox) view.findViewById(R.id.check_box);</div><div class="line">            <span class="keyword">if</span> (checkBox.isChecked()) &#123;</div><div class="line">                checkBox.setChecked(<span class="keyword">false</span>);</div><div class="line">                selectItems.<span class="built_in">set</span>(position, <span class="keyword">false</span>);</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                checkBox.setChecked(<span class="keyword">true</span>);</div><div class="line">                selectItems.<span class="built_in">set</span>(position, <span class="keyword">true</span>);</div><div class="line">            &#125;</div><div class="line">            adapter.notifyDataSetChanged();</div><div class="line">            setSelectNum();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    <span class="keyword">public</span> <span class="built_in">boolean</span> onItemLongClick(AdapterView&lt;?&gt; parent, View view, <span class="built_in">int</span> position, <span class="keyword">long</span> id) &#123;</div><div class="line">        <span class="keyword">if</span> (!isState) &#123;</div><div class="line">            selectItems = <span class="keyword">new</span> ArrayList&lt;&gt;();</div><div class="line">            <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; items.<span class="built_in">size</span>(); i++) &#123;</div><div class="line">                selectItems.<span class="built_in">add</span>(<span class="keyword">false</span>);</div><div class="line">            &#125;</div><div class="line">            CheckBox <span class="built_in">box</span> = (CheckBox) view.findViewById(R.id.check_box);</div><div class="line">            <span class="built_in">box</span>.setChecked(<span class="keyword">true</span>);</div><div class="line">            selectItems.<span class="built_in">set</span>(position, <span class="keyword">true</span>);</div><div class="line">            setState(<span class="keyword">true</span>);</div><div class="line">            adapter.setIsState(<span class="keyword">true</span>);</div><div class="line">            setSelectNum();</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">//设置当前状态 是否在多选模式</span></div><div class="line">    <span class="keyword">private</span> <span class="keyword">void</span> setState(<span class="built_in">boolean</span> b) &#123;</div><div class="line">        isState = b;</div><div class="line">        <span class="keyword">if</span> (b) &#123;</div><div class="line">            headerLayout.setVisibility(View.VISIBLE);</div><div class="line">            btnDel.setVisibility(View.VISIBLE);</div><div class="line">            actionBar.hide();</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            headerLayout.setVisibility(View.GONE);</div><div class="line">            btnDel.setVisibility(View.GONE);</div><div class="line">            actionBar.show();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">//显示已选项数目</span></div><div class="line">    <span class="keyword">private</span> <span class="keyword">void</span> setSelectNum() &#123;</div><div class="line">        <span class="built_in">int</span> num = <span class="number">0</span>;</div><div class="line">        <span class="keyword">for</span> (Boolean b : selectItems) &#123;</div><div class="line">            <span class="keyword">if</span> (b)</div><div class="line">                num ++;</div><div class="line">        &#125;</div><div class="line">        numText.setText(<span class="string">"已选择"</span> + num + <span class="string">"项"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">//全选</span></div><div class="line">    <span class="keyword">private</span> <span class="keyword">void</span> setSelectAll(<span class="built_in">boolean</span> b) &#123;</div><div class="line">       <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; selectItems.<span class="built_in">size</span>(); i++) &#123;</div><div class="line">           selectItems.<span class="built_in">set</span>(i, b);</div><div class="line">           adapter.notifyDataSetChanged();</div><div class="line">           setSelectNum();</div><div class="line">       &#125;</div><div class="line">        btnSelectAll.setVisibility(b? View.GONE : View.VISIBLE);</div><div class="line">        btnClear.setVisibility(b ? View.VISIBLE : View.GONE);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">//删除</span></div><div class="line">    <span class="keyword">private</span> <span class="keyword">void</span> delSelections() &#123;</div><div class="line">        AlertDialog.Builder builder = <span class="keyword">new</span> AlertDialog.Builder(<span class="keyword">this</span>);</div><div class="line">        <span class="keyword">if</span> (!selectItems.contains(<span class="keyword">true</span>)) &#123;</div><div class="line">            builder.setTitle(<span class="string">"提示"</span>).setMessage(<span class="string">"当前未选中项目"</span>).setPositiveButton(<span class="string">"确认"</span>, <span class="keyword">null</span>).create().show();</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            builder.setTitle(<span class="string">"提示"</span>);</div><div class="line">            builder.setMessage(<span class="string">"确认删除所选项目？"</span>);</div><div class="line">            builder.setPositiveButton(<span class="string">"确认"</span>, <span class="keyword">new</span> DialogInterface.OnClickListener() &#123;</div><div class="line">                @Override</div><div class="line">                <span class="keyword">public</span> <span class="keyword">void</span> onClick(DialogInterface dialog, <span class="built_in">int</span> which) &#123;</div><div class="line">                    <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; items.<span class="built_in">size</span>(); i++) &#123;</div><div class="line">                        <span class="keyword">if</span> (selectItems.<span class="built_in">get</span>(i)) &#123;</div><div class="line">                            items.<span class="built_in">set</span>(i, <span class="keyword">null</span>);</div><div class="line">                        &#125;</div><div class="line">                    &#125;</div><div class="line">                    <span class="keyword">while</span> (items.contains(<span class="keyword">null</span>)) &#123;</div><div class="line">                        items.remove(<span class="keyword">null</span>);</div><div class="line">                    &#125;</div><div class="line">                    selectItems = <span class="keyword">new</span> ArrayList&lt;&gt;();</div><div class="line">                    <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; items.<span class="built_in">size</span>(); i++) &#123;</div><div class="line">                        selectItems.<span class="built_in">add</span>(<span class="keyword">false</span>);</div><div class="line">                    &#125;</div><div class="line"></div><div class="line">                    adapter.setData(items);</div><div class="line">                    adapter.notifyDataSetChanged();</div><div class="line">                    <span class="keyword">if</span> (items.<span class="built_in">size</span>() == <span class="number">0</span>) &#123;</div><div class="line">                        adapter.setIsState(<span class="keyword">false</span>);</div><div class="line">                        setState(<span class="keyword">false</span>);</div><div class="line">                        <span class="keyword">return</span>;</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">            &#125;);</div><div class="line">            builder.setNegativeButton(<span class="string">"取消"</span>, <span class="keyword">null</span>);</div><div class="line">            builder.create().show();</div><div class="line">        &#125;</div><div class="line"></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="keyword">long</span> mExitTime;</div><div class="line">    <span class="keyword">public</span> <span class="built_in">boolean</span> onKeyDown(<span class="built_in">int</span> <span class="built_in">keyCode</span>, KeyEvent event) &#123;</div><div class="line">        <span class="keyword">if</span> (<span class="built_in">keyCode</span> == KeyEvent.KEYCODE_BACK) &#123;</div><div class="line">            <span class="keyword">if</span> (isState) &#123;</div><div class="line">                selectItems.<span class="built_in">clear</span>();</div><div class="line">                numText.setText(<span class="string">"已选择1项"</span>);</div><div class="line">                adapter.setIsState(<span class="keyword">false</span>);</div><div class="line">                setState(<span class="keyword">false</span>);</div><div class="line">                <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                <span class="keyword">if</span> ((System.currentTimeMillis() - mExitTime) &gt; <span class="number">2000</span>) &#123;</div><div class="line">                    Toast.makeText(<span class="keyword">this</span>, <span class="string">"再按一次退出程序"</span>, Toast.LENGTH_SHORT).show();</div><div class="line">                    mExitTime = System.currentTimeMillis();</div><div class="line">                &#125;</div><div class="line">                <span class="keyword">else</span> finish();</div><div class="line">                <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">return</span> <span class="keyword">super</span>.onKeyDown(<span class="built_in">keyCode</span>, event);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>设配器Adapter</p>
+<figure class="highlight aspectj"><table><tr><td class="code"><pre><div class="line"><span class="keyword">package</span> com.mygridview;</div><div class="line"></div><div class="line"><span class="keyword">import</span> android.content.Context;</div><div class="line"><span class="keyword">import</span> android.view.LayoutInflater;</div><div class="line"><span class="keyword">import</span> android.view.View;</div><div class="line"><span class="keyword">import</span> android.view.ViewGroup;</div><div class="line"><span class="keyword">import</span> android.widget.CheckBox;</div><div class="line"><span class="keyword">import</span> android.widget.SimpleAdapter;</div><div class="line"></div><div class="line"><span class="keyword">import</span> java.util.ArrayList;</div><div class="line"><span class="keyword">import</span> java.util.List;</div><div class="line"><span class="keyword">import</span> java.util.Map;</div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyAdapter</span> <span class="keyword">extends</span> <span class="title">SimpleAdapter</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> List&lt;? <span class="keyword">extends</span> Map&lt;String, ?&gt;&gt; data;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> resourse;</div><div class="line">    <span class="keyword">private</span> Context context;</div><div class="line">    <span class="keyword">private</span> LayoutInflater inflater;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> isState = <span class="keyword">false</span>;</div><div class="line"></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyAdapter</span><span class="params">(Context context, List&lt;? <span class="keyword">extends</span> Map&lt;String, ?&gt;&gt; data, <span class="keyword">int</span> resource, String[] from, <span class="keyword">int</span>[] to)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>(context, data, resource, from, to);</div><div class="line">        inflater = LayoutInflater.from(context);</div><div class="line">        <span class="keyword">this</span>.resourse = resource;</div><div class="line">        <span class="keyword">this</span>.data = data;</div><div class="line">        <span class="keyword">this</span>.context = context;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">void</span> <span class="title">setData</span><span class="params">(List&lt;? <span class="keyword">extends</span> Map&lt;String, ?&gt;&gt; data)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.data = data;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">void</span> <span class="title">setIsState</span><span class="params">(<span class="keyword">boolean</span> isState)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.isState = isState;</div><div class="line">        notifyDataSetChanged();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">int</span> <span class="title">getCount</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="function"><span class="keyword">return</span> data.<span class="title">size</span><span class="params">()</span></span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="keyword">public</span> <span class="function">Object <span class="title">getItem</span><span class="params">(<span class="keyword">int</span> position)</span> </span>&#123;</div><div class="line">        <span class="function"><span class="keyword">return</span> data.<span class="title">get</span><span class="params">(position)</span></span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">long</span> <span class="title">getItemId</span><span class="params">(<span class="keyword">int</span> position)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> position;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="keyword">public</span> <span class="function">View <span class="title">getView</span><span class="params">(<span class="keyword">int</span> position, View convertView, ViewGroup parent)</span> </span>&#123;</div><div class="line">        ArrayList&lt;Boolean&gt; list = ((MainActivity) context).getSelectItems();</div><div class="line">        convertView = inflater.inflate(resourse ,<span class="keyword">null</span>);</div><div class="line">        CheckBox checkBox = (CheckBox) convertView.findViewById(R.id.check_box);</div><div class="line">        checkBox.setVisibility(isState? View.VISIBLE : View.GONE);</div><div class="line">        <span class="keyword">if</span> (list.size() != <span class="number">0</span>)</div><div class="line">            checkBox.setChecked(list.get(position));</div><div class="line">        <span class="function"><span class="keyword">return</span> <span class="keyword">super</span>.<span class="title">getView</span><span class="params">(position, convertView, parent)</span></span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>主页面布局 activity_main.xml<br><figure class="highlight xml"><table><tr><td class="code"><pre><div class="line"><span class="php"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span> encoding=<span class="string">"utf-8"</span><span class="meta">?&gt;</span></span></div><div class="line"><span class="tag">&lt;<span class="name">RelativeLayout</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></div><div class="line">    <span class="attr">xmlns:tools</span>=<span class="string">"http://schemas.android.com/tools"</span></div><div class="line">    <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></div><div class="line">    <span class="attr">android:layout_height</span>=<span class="string">"match_parent"</span></div><div class="line">    <span class="attr">tools:context</span>=<span class="string">"com.mygridview.MainActivity"</span>&gt;</div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">RelativeLayout</span></span></div><div class="line">        <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></div><div class="line">        <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></div><div class="line">        <span class="attr">android:layout_alignParentTop</span>=<span class="string">"true"</span></div><div class="line">        <span class="attr">android:id</span>=<span class="string">"@+id/header"</span></div><div class="line">        <span class="attr">android:visibility</span>=<span class="string">"gone"</span></div><div class="line">        <span class="attr">android:background</span>=<span class="string">"@color/colorPrimary"</span></div><div class="line">        &gt;</div><div class="line">        <span class="tag">&lt;<span class="name">Button</span></span></div><div class="line">            <span class="attr">android:layout_width</span>=<span class="string">"wrap_content"</span></div><div class="line">            <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></div><div class="line">            <span class="attr">android:id</span>=<span class="string">"@+id/btn_cancel"</span></div><div class="line">            <span class="attr">android:background</span>=<span class="string">"@android:color/transparent"</span></div><div class="line">            <span class="attr">android:text</span>=<span class="string">"取消"</span></div><div class="line">            /&gt;</div><div class="line">        <span class="tag">&lt;<span class="name">TextView</span></span></div><div class="line">            <span class="attr">android:layout_width</span>=<span class="string">"wrap_content"</span></div><div class="line">            <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></div><div class="line">            <span class="attr">android:text</span>=<span class="string">"已选择1项"</span></div><div class="line">            <span class="attr">android:layout_centerVertical</span>=<span class="string">"true"</span></div><div class="line">            <span class="attr">android:layout_centerInParent</span>=<span class="string">"true"</span></div><div class="line">            <span class="attr">android:id</span>=<span class="string">"@+id/number"</span></div><div class="line">            /&gt;</div><div class="line">        <span class="tag">&lt;<span class="name">Button</span></span></div><div class="line">            <span class="attr">android:layout_width</span>=<span class="string">"wrap_content"</span></div><div class="line">            <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></div><div class="line">            <span class="attr">android:text</span>=<span class="string">"全选"</span></div><div class="line">            <span class="attr">android:background</span>=<span class="string">"@android:color/transparent"</span></div><div class="line">            <span class="attr">android:id</span>=<span class="string">"@+id/btn_select_all"</span></div><div class="line">            <span class="attr">android:layout_alignParentEnd</span>=<span class="string">"true"</span></div><div class="line">            /&gt;</div><div class="line">        <span class="tag">&lt;<span class="name">Button</span></span></div><div class="line">            <span class="attr">android:layout_width</span>=<span class="string">"wrap_content"</span></div><div class="line">            <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></div><div class="line">            <span class="attr">android:text</span>=<span class="string">"清除"</span></div><div class="line">            <span class="attr">android:background</span>=<span class="string">"@android:color/transparent"</span></div><div class="line">            <span class="attr">android:id</span>=<span class="string">"@+id/btn_clear"</span></div><div class="line">            <span class="attr">android:visibility</span>=<span class="string">"gone"</span></div><div class="line">            <span class="attr">android:layout_alignParentEnd</span>=<span class="string">"true"</span></div><div class="line">            /&gt;</div><div class="line"></div><div class="line">    <span class="tag">&lt;/<span class="name">RelativeLayout</span>&gt;</span></div><div class="line"></div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">GridView</span></span></div><div class="line">        <span class="attr">android:layout_below</span>=<span class="string">"@+id/header"</span></div><div class="line">        <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></div><div class="line">        <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></div><div class="line">        <span class="attr">android:numColumns</span>=<span class="string">"3"</span></div><div class="line">        <span class="attr">android:id</span>=<span class="string">"@+id/grid_view"</span></div><div class="line">        <span class="attr">android:verticalSpacing</span>=<span class="string">"10dp"</span></div><div class="line">        <span class="attr">android:horizontalSpacing</span>=<span class="string">"10dp"</span></div><div class="line">        <span class="attr">android:layout_above</span>=<span class="string">"@+id/btn_del"</span></div><div class="line">        &gt;</div><div class="line"></div><div class="line">    <span class="tag">&lt;/<span class="name">GridView</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">Button</span></span></div><div class="line">        <span class="attr">android:layout_width</span>=<span class="string">"wrap_content"</span></div><div class="line">        <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></div><div class="line">        <span class="attr">android:text</span>=<span class="string">"删除"</span></div><div class="line">        <span class="attr">android:id</span>=<span class="string">"@+id/btn_del"</span></div><div class="line">        <span class="attr">android:visibility</span>=<span class="string">"gone"</span></div><div class="line">        <span class="attr">android:layout_alignParentBottom</span>=<span class="string">"true"</span></div><div class="line">        <span class="attr">android:layout_centerHorizontal</span>=<span class="string">"true"</span> /&gt;</div><div class="line"></div><div class="line"></div><div class="line"><span class="tag">&lt;/<span class="name">RelativeLayout</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>每个item的布局 image.xml</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><div class="line"><span class="php"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span> encoding=<span class="string">"utf-8"</span><span class="meta">?&gt;</span></span></div><div class="line"><span class="tag">&lt;<span class="name">LinearLayout</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></div><div class="line">    <span class="attr">android:orientation</span>=<span class="string">"vertical"</span> <span class="attr">android:layout_width</span>=<span class="string">"wrap_content"</span></div><div class="line">    <span class="attr">android:layout_height</span>=<span class="string">"match_parent"</span></div><div class="line">    <span class="attr">android:descendantFocusability</span>=<span class="string">"blocksDescendants"</span></div><div class="line">    &gt;</div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">RelativeLayout</span></span></div><div class="line">        <span class="attr">android:layout_width</span>=<span class="string">"wrap_content"</span></div><div class="line">        <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span>&gt;</div><div class="line"></div><div class="line">        <span class="tag">&lt;<span class="name">ImageView</span></span></div><div class="line">            <span class="attr">android:layout_width</span>=<span class="string">"120dp"</span></div><div class="line">            <span class="attr">android:layout_height</span>=<span class="string">"150dp"</span></div><div class="line">            <span class="attr">android:src</span>=<span class="string">"@drawable/image"</span></div><div class="line">            <span class="attr">android:scaleType</span>=<span class="string">"centerCrop"</span></div><div class="line">            <span class="attr">android:id</span>=<span class="string">"@+id/my_image"</span></div><div class="line">            /&gt;</div><div class="line">        <span class="tag">&lt;<span class="name">CheckBox</span></span></div><div class="line">            <span class="attr">android:layout_width</span>=<span class="string">"wrap_content"</span></div><div class="line">            <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></div><div class="line">            <span class="attr">android:id</span>=<span class="string">"@+id/check_box"</span></div><div class="line">            <span class="attr">android:visibility</span>=<span class="string">"gone"</span></div><div class="line">            <span class="attr">android:layout_alignParentTop</span>=<span class="string">"true"</span></div><div class="line">            <span class="attr">android:layout_alignRight</span>=<span class="string">"@+id/my_image"</span></div><div class="line">            <span class="attr">android:layout_alignEnd</span>=<span class="string">"@+id/my_image"</span> /&gt;</div><div class="line"></div><div class="line">    <span class="tag">&lt;/<span class="name">RelativeLayout</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">LinearLayout</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>问题总结：<br>1.当进入多选模式时点击图片CheckBox不会选中。<br>答：由于图片和多选框组成的view的点击事件与多选框的点击事件冲突，所以无法选中，可以在xml的根布局中加入android:descendantFocusability=”blocksDescendants”即可解决。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/01/23/Android使用DrawerLayout和ToolBar实现仿知乎侧滑菜单/" rel="next" title="Android使用DrawerLayout和ToolBar实现仿知乎侧滑菜单">
+                <i class="fa fa-chevron-left"></i> Android使用DrawerLayout和ToolBar实现仿知乎侧滑菜单
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/03/19/线性表的存储结构（顺序存储结构）/" rel="prev" title=" 线性表的存储结构（顺序存储结构）">
+                 线性表的存储结构（顺序存储结构） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/02/24/Android中GridView实现长按多选功能/"
+           data-title="Android中GridView实现长按多选功能" data-url="http://yoursite.com/2016/02/24/Android中GridView实现长按多选功能/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://p3.gexing.com/shaitu/20121007/1357/507119d890452.jpg"
+               alt="QiHuang" />
+          <p class="site-author-name" itemprop="name">QiHuang</p>
+          <p class="site-description motion-element" itemprop="description">hah!</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">53</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">QiHuang</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"scauq"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

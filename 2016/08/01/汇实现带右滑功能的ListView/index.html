@@ -1,0 +1,687 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="近来看到QQ的联系列表的右滑功能很不错，于是就想着自己也设计一下，看看怎样才能实现这种右滑的功能，参考了网上的一些资料，搞定了各种bug，终于实现了一个简单的带右滑功能的ListView。先附上效果图吧：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="汇实现带右滑功能的ListView">
+<meta property="og:url" content="http://yoursite.com/2016/08/01/汇实现带右滑功能的ListView/index.html">
+<meta property="og:site_name" content="QiHuang's Blogs">
+<meta property="og:description" content="近来看到QQ的联系列表的右滑功能很不错，于是就想着自己也设计一下，看看怎样才能实现这种右滑的功能，参考了网上的一些资料，搞定了各种bug，终于实现了一个简单的带右滑功能的ListView。先附上效果图吧：">
+<meta property="og:image" content="http://img.blog.csdn.net/20160801190917119">
+<meta property="og:updated_time" content="2017-01-07T05:47:52.298Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="汇实现带右滑功能的ListView">
+<meta name="twitter:description" content="近来看到QQ的联系列表的右滑功能很不错，于是就想着自己也设计一下，看看怎样才能实现这种右滑的功能，参考了网上的一些资料，搞定了各种bug，终于实现了一个简单的带右滑功能的ListView。先附上效果图吧：">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20160801190917119">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/08/01/汇实现带右滑功能的ListView/"/>
+
+
+
+
+
+  <title> 汇实现带右滑功能的ListView | QiHuang's Blogs </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">QiHuang's Blogs</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">hah!</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-note">
+          <a href="/categories/note" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            随笔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            目录
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/08/01/汇实现带右滑功能的ListView/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="QiHuang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://p3.gexing.com/shaitu/20121007/1357/507119d890452.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="QiHuang's Blogs">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="QiHuang's Blogs" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                汇实现带右滑功能的ListView
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-08-01T19:06:00+08:00">
+                2016-08-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/08/01/汇实现带右滑功能的ListView/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/08/01/汇实现带右滑功能的ListView/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>近来看到QQ的联系列表的右滑功能很不错，于是就想着自己也设计一下，看看怎样才能实现这种右滑的功能，参考了网上的一些资料，搞定了各种bug，终于实现了一个简单的带右滑功能的ListView。先附上效果图吧：<br><img src="http://img.blog.csdn.net/20160801190917119" alt="这里写图片描述"><br><a id="more"></a><br>以下是实现该功能的源码：<br>SwipeListView.java<br><figure class="highlight aspectj"><table><tr><td class="code"><pre><div class="line"><span class="keyword">package</span> com.custom;</div><div class="line"></div><div class="line"><span class="keyword">import</span> android.content.Context;</div><div class="line"><span class="keyword">import</span> android.util.AttributeSet;</div><div class="line"><span class="keyword">import</span> android.util.DisplayMetrics;</div><div class="line"><span class="keyword">import</span> android.view.MotionEvent;</div><div class="line"><span class="keyword">import</span> android.view.ViewGroup;</div><div class="line"><span class="keyword">import</span> android.view.WindowManager;</div><div class="line"><span class="keyword">import</span> android.widget.LinearLayout;</div><div class="line"><span class="keyword">import</span> android.widget.ListView;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"> * Created by Administrator on 2016/7/30.</div><div class="line"> */</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SwipeListView</span> <span class="keyword">extends</span> <span class="title">ListView</span> </span>&#123;</div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 屏幕宽度</div><div class="line">     */</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mScreenWidth;</div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 按下的坐标</div><div class="line">     */</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mDownX, mDownY;</div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 两个功能按钮的宽度</div><div class="line">     */</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mDelBtnWidth, mTopBtnWidth;</div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 目标View</div><div class="line">     */</div><div class="line">    <span class="keyword">private</span> ViewGroup mSelectedView;</div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 需要移动的布局</div><div class="line">     */</div><div class="line">    <span class="keyword">private</span> LinearLayout.LayoutParams mLayoutParams;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 显示状态？</div><div class="line">     */</div><div class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> isBtnShow;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SwipeListView</span><span class="params">(Context context, AttributeSet attrs)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>(context, attrs, <span class="number">0</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SwipeListView</span><span class="params">(Context context, AttributeSet attrs, <span class="keyword">int</span> defStyleAttr)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>(context, attrs, defStyleAttr);</div><div class="line">        <span class="comment">//获取屏幕宽度</span></div><div class="line">        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);</div><div class="line">        DisplayMetrics dm = <span class="keyword">new</span> DisplayMetrics();</div><div class="line">        wm.getDefaultDisplay().getMetrics(dm);</div><div class="line">        mScreenWidth = dm.widthPixels;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">boolean</span> <span class="title">onTouchEvent</span><span class="params">(MotionEvent ev)</span> </span>&#123;</div><div class="line">        <span class="keyword">switch</span> (ev.getAction()) &#123;</div><div class="line">            <span class="keyword">case</span> MotionEvent.ACTION_DOWN:</div><div class="line">                performActionDown(ev);</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            <span class="keyword">case</span> MotionEvent.ACTION_UP:</div><div class="line">                performActionUp();</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            <span class="keyword">case</span> MotionEvent.ACTION_MOVE:</div><div class="line">                <span class="keyword">return</span> performActionMove(ev);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="function"><span class="keyword">return</span> <span class="keyword">super</span>.<span class="title">onTouchEvent</span><span class="params">(ev)</span></span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 处理ActionDown事件</div><div class="line">     * <span class="doctag">@param</span> ev</div><div class="line">     */</div><div class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">void</span> <span class="title">performActionDown</span><span class="params">(MotionEvent ev)</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (isBtnShow) &#123;</div><div class="line">            recovery();</div><div class="line">        &#125;</div><div class="line">        mDownX = (<span class="keyword">int</span>) ev.getX();</div><div class="line">        mDownY = (<span class="keyword">int</span>) ev.getY();</div><div class="line">        <span class="comment">//获取选中的View</span></div><div class="line">        mSelectedView = (ViewGroup) getChildAt(pointToPosition(mDownX, mDownY) - getFirstVisiblePosition());</div><div class="line">        <span class="comment">//获取按钮长度</span></div><div class="line">        mDelBtnWidth = mSelectedView.getChildAt(<span class="number">2</span>).getLayoutParams().width;</div><div class="line">        mTopBtnWidth = mSelectedView.getChildAt(<span class="number">1</span>).getLayoutParams().width;</div><div class="line">        <span class="comment">//获取需要移动的布局</span></div><div class="line">        mLayoutParams = (LinearLayout.LayoutParams) mSelectedView.getChildAt(<span class="number">0</span>).getLayoutParams();</div><div class="line">        mLayoutParams.width = mScreenWidth;</div><div class="line">        mSelectedView.getChildAt(<span class="number">0</span>).setLayoutParams(mLayoutParams);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 处理ActionMove事件</div><div class="line">     * <span class="doctag">@param</span> ev</div><div class="line">     */</div><div class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">boolean</span> <span class="title">performActionMove</span><span class="params">(MotionEvent ev)</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> laterX = (<span class="keyword">int</span>) ev.getX();</div><div class="line">        <span class="keyword">int</span> laterY = (<span class="keyword">int</span>) ev.getY();</div><div class="line">        <span class="comment">//判断在X轴上移动的距离大于Y轴上移动的距离</span></div><div class="line">        <span class="keyword">if</span>(Math.abs(laterX - mDownX) &gt; Math.abs(laterY - mDownY)) &#123;</div><div class="line">            <span class="comment">//左移</span></div><div class="line">            <span class="keyword">if</span>(laterX &lt; mDownX) &#123;</div><div class="line">                <span class="comment">//滑动距离超过mTopBtnWidth就设置为mTopBtnWidth</span></div><div class="line">                <span class="keyword">int</span> scroll = laterX - mDownX;</div><div class="line">                <span class="keyword">if</span>(-scroll &gt;= mTopBtnWidth) &#123;</div><div class="line">                    scroll = -mDelBtnWidth - mTopBtnWidth;</div><div class="line">                &#125;</div><div class="line">                mLayoutParams.leftMargin = scroll;</div><div class="line">                mSelectedView.getChildAt(<span class="number">0</span>).setLayoutParams(mLayoutParams);</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="function"><span class="keyword">return</span> <span class="keyword">super</span>.<span class="title">onTouchEvent</span><span class="params">(ev)</span></span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 处理ActionUp事件</div><div class="line">     */</div><div class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">void</span> <span class="title">performActionUp</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (-mLayoutParams.leftMargin &gt;= mTopBtnWidth) &#123;</div><div class="line">            mLayoutParams.leftMargin = -mDelBtnWidth - mTopBtnWidth;</div><div class="line">            isBtnShow = <span class="keyword">true</span>;</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            recovery();</div><div class="line">        &#125;</div><div class="line">        mSelectedView.getChildAt(<span class="number">0</span>).setLayoutParams(mLayoutParams);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 恢复初始状态</div><div class="line">     */</div><div class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">void</span> <span class="title">recovery</span><span class="params">()</span> </span>&#123;</div><div class="line">        mLayoutParams.leftMargin = <span class="number">0</span>;</div><div class="line">        mSelectedView.getChildAt(<span class="number">0</span>).setLayoutParams(mLayoutParams);</div><div class="line">        isBtnShow = <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>接下来就是适配器了：</p>
+<figure class="highlight aspectj"><table><tr><td class="code"><pre><div class="line"><span class="keyword">package</span> com.custom;</div><div class="line"></div><div class="line"><span class="keyword">import</span> android.content.Context;</div><div class="line"><span class="keyword">import</span> android.view.LayoutInflater;</div><div class="line"><span class="keyword">import</span> android.view.View;</div><div class="line"><span class="keyword">import</span> android.view.ViewGroup;</div><div class="line"><span class="keyword">import</span> android.widget.BaseAdapter;</div><div class="line"><span class="keyword">import</span> android.widget.TextView;</div><div class="line"></div><div class="line"><span class="keyword">import</span> java.util.ArrayList;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"> * Created by Administrator on 2016/7/29.</div><div class="line"> */</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyAdapter</span> <span class="keyword">extends</span> <span class="title">BaseAdapter</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> LayoutInflater mInflater;</div><div class="line">    <span class="keyword">private</span> ArrayList&lt;String&gt; mList;</div><div class="line">    <span class="keyword">private</span> SwipeListView mListView;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyAdapter</span><span class="params">(Context context, ArrayList&lt;String&gt; list, SwipeListView listView)</span> </span>&#123;</div><div class="line">        mInflater = LayoutInflater.from(context);</div><div class="line">        mList = list;</div><div class="line">        mListView = listView;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">int</span> <span class="title">getCount</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="function"><span class="keyword">return</span> mList.<span class="title">size</span><span class="params">()</span></span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="keyword">public</span> <span class="function">Object <span class="title">getItem</span><span class="params">(<span class="keyword">int</span> position)</span> </span>&#123;</div><div class="line">        <span class="function"><span class="keyword">return</span> mList.<span class="title">get</span><span class="params">(position)</span></span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">long</span> <span class="title">getItemId</span><span class="params">(<span class="keyword">int</span> position)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> position;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="keyword">public</span> <span class="function">View <span class="title">getView</span><span class="params">(<span class="keyword">final</span> <span class="keyword">int</span> position, View convertView, ViewGroup parent)</span> </span>&#123;</div><div class="line">        String s = mList.get(position);</div><div class="line">        ViewHolder viewHolder = <span class="keyword">null</span>;</div><div class="line">        <span class="keyword">if</span> (convertView == <span class="keyword">null</span>) &#123;</div><div class="line">            viewHolder = <span class="keyword">new</span> ViewHolder();</div><div class="line">            convertView = mInflater.inflate(R.layout.item, <span class="keyword">null</span>);</div><div class="line">            viewHolder.tv = (TextView) convertView.findViewById(R.id.tv);</div><div class="line">            viewHolder.top = (TextView) convertView.findViewById(R.id.top);</div><div class="line">            viewHolder.del = (TextView) convertView.findViewById(R.id.delete);</div><div class="line">            convertView.setTag(viewHolder);</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            viewHolder = (ViewHolder) convertView.getTag();</div><div class="line">        &#125;</div><div class="line">        viewHolder.tv.setText(s);</div><div class="line">        viewHolder.del.setOnClickListener(<span class="keyword">new</span> View.OnClickListener() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="keyword">public</span> <span class="function"><span class="keyword">void</span> <span class="title">onClick</span><span class="params">(View v)</span> </span>&#123;</div><div class="line">	            <span class="comment">//删除</span></div><div class="line">                mList.remove(position);</div><div class="line">                notifyDataSetChanged();</div><div class="line">                mListView.recovery();</div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line">        viewHolder.top.setOnClickListener(<span class="keyword">new</span> View.OnClickListener() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="keyword">public</span> <span class="function"><span class="keyword">void</span> <span class="title">onClick</span><span class="params">(View v)</span> </span>&#123;</div><div class="line">	            <span class="comment">//置顶</span></div><div class="line">                mList.add(<span class="number">0</span>, mList.get(position));</div><div class="line">                mList.remove(position + <span class="number">1</span>);</div><div class="line">                notifyDataSetChanged();</div><div class="line">                mListView.recovery();</div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line"></div><div class="line">        <span class="keyword">return</span> convertView;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">ViewHolder</span> </span>&#123;</div><div class="line">        TextView tv, top, del;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>附上XML文件：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><div class="line"><span class="php"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span> encoding=<span class="string">"utf-8"</span><span class="meta">?&gt;</span></span></div><div class="line"><span class="tag">&lt;<span class="name">LinearLayout</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></div><div class="line">    <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></div><div class="line">    <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></div><div class="line">    <span class="attr">android:orientation</span>=<span class="string">"horizontal"</span> &gt;</div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">TextView</span></span></div><div class="line">        <span class="attr">android:id</span>=<span class="string">"@+id/tv"</span></div><div class="line">        <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></div><div class="line">        <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></div><div class="line">        <span class="attr">android:paddingBottom</span>=<span class="string">"20dp"</span></div><div class="line">        <span class="attr">android:paddingLeft</span>=<span class="string">"10dp"</span></div><div class="line">        <span class="attr">android:paddingTop</span>=<span class="string">"20dp"</span></div><div class="line">        <span class="attr">android:background</span>=<span class="string">"@android:color/white"</span>/&gt;</div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">TextView</span></span></div><div class="line">        <span class="attr">android:id</span>=<span class="string">"@+id/top"</span></div><div class="line">        <span class="attr">android:layout_width</span>=<span class="string">"70dp"</span></div><div class="line">        <span class="attr">android:layout_height</span>=<span class="string">"match_parent"</span></div><div class="line">        <span class="attr">android:background</span>=<span class="string">"#a7a6a6"</span></div><div class="line">        <span class="attr">android:gravity</span>=<span class="string">"center"</span></div><div class="line">        <span class="attr">android:paddingLeft</span>=<span class="string">"20dp"</span></div><div class="line">        <span class="attr">android:textColor</span>=<span class="string">"@android:color/white"</span></div><div class="line">        <span class="attr">android:paddingRight</span>=<span class="string">"20dp"</span></div><div class="line">        <span class="attr">android:text</span>=<span class="string">"置顶"</span> /&gt;</div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">TextView</span></span></div><div class="line">        <span class="attr">android:id</span>=<span class="string">"@+id/delete"</span></div><div class="line">        <span class="attr">android:layout_width</span>=<span class="string">"70dp"</span></div><div class="line">        <span class="attr">android:layout_height</span>=<span class="string">"match_parent"</span></div><div class="line">        <span class="attr">android:background</span>=<span class="string">"#FFFF0000"</span></div><div class="line">        <span class="attr">android:gravity</span>=<span class="string">"center"</span></div><div class="line">        <span class="attr">android:paddingLeft</span>=<span class="string">"20dp"</span></div><div class="line">        <span class="attr">android:textColor</span>=<span class="string">"@android:color/white"</span></div><div class="line">        <span class="attr">android:paddingRight</span>=<span class="string">"20dp"</span></div><div class="line">        <span class="attr">android:text</span>=<span class="string">"删除"</span> /&gt;</div><div class="line"></div><div class="line"><span class="tag">&lt;/<span class="name">LinearLayout</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>以上就是实现的代码，不足之处在于收回的时候有点生硬，需要动画过渡，才会展现得好一些。至于动画过渡，现在掌握也不太熟悉，就暂时先放下，有时间慢慢研究吧。<br>附上GitOS链接:<a href="http://git.oschina.net/QiHuangQi/SwipeListView" target="_blank" rel="external">http://git.oschina.net/QiHuangQi/SwipeListView</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/06/21/汇编实现排序——希尔排序/" rel="next" title="汇编实现排序——希尔排序">
+                <i class="fa fa-chevron-left"></i> 汇编实现排序——希尔排序
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/08/12/浅析View工作原理/" rel="prev" title="浅析View工作原理">
+                浅析View工作原理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/08/01/汇实现带右滑功能的ListView/"
+           data-title="汇实现带右滑功能的ListView" data-url="http://yoursite.com/2016/08/01/汇实现带右滑功能的ListView/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://p3.gexing.com/shaitu/20121007/1357/507119d890452.jpg"
+               alt="QiHuang" />
+          <p class="site-author-name" itemprop="name">QiHuang</p>
+          <p class="site-description motion-element" itemprop="description">hah!</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">53</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">QiHuang</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"scauq"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

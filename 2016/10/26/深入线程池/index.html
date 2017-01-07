@@ -1,0 +1,704 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="之前在读Java进阶书籍的时候，接触到了关于线程池的使用，但是一直没有进行系统的理解。这篇博客主要是对线程池功能的梳理。使用线程池来执行任务相对于线程来讲有许多优点：1.能够重用线程池里的线程，减少创建线程的开销。2.可以控制线程池中的最大并发数。3.可以对线程进行简单的管理。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入线程池">
+<meta property="og:url" content="http://yoursite.com/2016/10/26/深入线程池/index.html">
+<meta property="og:site_name" content="QiHuang's Blogs">
+<meta property="og:description" content="之前在读Java进阶书籍的时候，接触到了关于线程池的使用，但是一直没有进行系统的理解。这篇博客主要是对线程池功能的梳理。使用线程池来执行任务相对于线程来讲有许多优点：1.能够重用线程池里的线程，减少创建线程的开销。2.可以控制线程池中的最大并发数。3.可以对线程进行简单的管理。">
+<meta property="og:updated_time" content="2017-01-07T05:47:52.314Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="深入线程池">
+<meta name="twitter:description" content="之前在读Java进阶书籍的时候，接触到了关于线程池的使用，但是一直没有进行系统的理解。这篇博客主要是对线程池功能的梳理。使用线程池来执行任务相对于线程来讲有许多优点：1.能够重用线程池里的线程，减少创建线程的开销。2.可以控制线程池中的最大并发数。3.可以对线程进行简单的管理。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/10/26/深入线程池/"/>
+
+
+
+
+
+  <title> 深入线程池 | QiHuang's Blogs </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">QiHuang's Blogs</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">hah!</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-note">
+          <a href="/categories/note" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            随笔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            目录
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/10/26/深入线程池/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="QiHuang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://p3.gexing.com/shaitu/20121007/1357/507119d890452.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="QiHuang's Blogs">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="QiHuang's Blogs" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                深入线程池
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-10-26T15:42:00+08:00">
+                2016-10-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/10/26/深入线程池/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/10/26/深入线程池/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>之前在读Java进阶书籍的时候，接触到了关于线程池的使用，但是一直没有进行系统的理解。这篇博客主要是对线程池功能的梳理。<br>使用线程池来执行任务相对于线程来讲有许多优点：<br>1.能够重用线程池里的线程，减少创建线程的开销。<br>2.可以控制线程池中的最大并发数。<br>3.可以对线程进行简单的管理。<br><a id="more"></a></p>
+<p>##线程池的简单使用</p>
+<figure class="highlight haxe"><table><tr><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> void main(<span class="keyword">String</span>[] args) &#123;</div><div class="line">        ExecutorService executor = Executors.<span class="keyword">new</span><span class="type">FixedThreadPool</span>(<span class="number">3</span>);</div><div class="line">        executor.execute(<span class="keyword">new</span> <span class="type">MyThread</span>());</div><div class="line">        executor.execute(<span class="keyword">new</span> <span class="type">MyThread</span>());</div><div class="line">        executor.execute(<span class="keyword">new</span> <span class="type">MyThread</span>());</div><div class="line">        executor.shutdown();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">MyThread</span> <span class="keyword"><span class="keyword">extends</span> <span class="type">Thread</span></span> </span>&#123;</div><div class="line">        @Override</div><div class="line">        <span class="keyword">public</span> void run() &#123;</div><div class="line">            System.out.println(Thread.currentThread().getName() + <span class="string">":running"</span>);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>运行后，每个线程就会执行起来：</p>
+<blockquote>
+<p>pool-1-thread-1run<br>pool-1-thread-3run<br>pool-1-thread-2run</p>
+</blockquote>
+<p>上述的示例是通过Executors.newFixedThreadPool这个方法来生成一个线程池，当然，在编码的时候会发现Executors不仅仅只有newFixedThreadPool这个方法，还有其他的方法来生成线程池，那它们之前有什么区别？<br>在了解其中的区别之前，需要先了解一个线程池真正是在哪里创建的，查看newFixedThreadPool的源码：</p>
+<figure class="highlight haxe"><table><tr><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="keyword">new</span><span class="type">FixedThreadPool</span>(int nThreads) &#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="type">ThreadPoolExecutor</span>(nThreads, nThreads,</div><div class="line">                                      <span class="number">0</span>L, TimeUnit.MILLISECONDS,</div><div class="line">                                      <span class="keyword">new</span> <span class="type">LinkedBlockingQueue</span>&lt;Runnable&gt;());</div><div class="line"> &#125;</div></pre></td></tr></table></figure>
+<p>上述是通过创建了ThreadPoolExecutor对象来创建线程池。其中，该类的构造方法所需的参数需要了解一下：<br><figure class="highlight cpp"><table><tr><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">ThreadPoolExecutor</span><span class="params">(<span class="keyword">int</span> corePoolSize,</span></span></div><div class="line">                              <span class="keyword">int</span> maximumPoolSize,</div><div class="line">                              <span class="keyword">long</span> keepAliveTime,</div><div class="line">                              TimeUnit unit,</div><div class="line">                              BlockingQueue&lt;Runnable&gt; workQueue,</div><div class="line">                              ThreadFactory threadFactory)</div></pre></td></tr></table></figure></p>
+<p><strong>corePoolSize</strong>:线程池中核心线程的数量，核心线程会一直存活。但是可以把该类中的allowsCoreThreadTimeOut方法的参数传入true以及设定keepAliveTime的时间来终止线程。意味着当核心线程的空闲时间超出keepAliveTime时也会被终止。如果线程池中核心线程未到达指定的数量，新加的任务就会直接启动一条核心线程来执行。<br><strong>maximumPoolSize</strong>：线程池中线程的最大数量。等于核心线程+非核心线程。<br><strong>keepAliveTime</strong>：线程空闲的最大时间，超出时间，非核心线程就会被终止。<br><strong>unit</strong>：指定keepAliveTime的时间单位。<br><strong>workQueue</strong>：工作队列，通过execute方法可以往队列添加线程任务。<br><strong>threadFactory</strong>：用于创建新线程。</p>
+<p>有了上述知识的基础后，再继续分析各种线程池的区别：</p>
+<p>###<strong>方法：newFixedThreadPool</strong><br>该方式会产生一个线程数量固定的线程池，方法的参数即为线程数量。池内的线程处于空闲状态时，不会被回收。当线程池内线程数量达到设定的参数时，新来的任务就会被阻塞，直到有线程执行完毕。</p>
+<figure class="highlight haxe"><table><tr><td class="code"><pre><div class="line">```</div><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="keyword">new</span><span class="type">FixedThreadPool</span>(int nThreads) &#123;</div><div class="line">		<span class="comment">//核心线程数量和最大线程数量，说明该线程池中所有的线程都是核心线程。另外，超时时间为0，即没有超时机制。</span></div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="type">ThreadPoolExecutor</span>(nThreads, nThreads,</div><div class="line">                                      <span class="number">0</span>L, TimeUnit.MILLISECONDS,</div><div class="line">                                      <span class="keyword">new</span> <span class="type">LinkedBlockingQueue</span>&lt;Runnable&gt;());</div><div class="line"> &#125;</div></pre></td></tr></table></figure>
+<p>###<strong>方法：newCachedThreadPool</strong></p>
+<figure class="highlight haxe"><table><tr><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="keyword">new</span><span class="type">CachedThreadPool</span>() &#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="type">ThreadPoolExecutor</span>(<span class="number">0</span>, Integer.MAX_VALUE,</div><div class="line">                                      <span class="number">60</span>L, TimeUnit.SECONDS,</div><div class="line">                                      <span class="keyword">new</span> <span class="type">SynchronousQueue</span>&lt;Runnable&gt;());</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>由上面的参数可以知道，该线程池中没有核心线程，而且该线程池中线程的数量不固定，最大线程数也相当大。当线程池中有空闲的线程时，就会被用来执行新任务，否则，超时60s后就会被终止。这类线程池用于执行大量且耗时小的任务。</p>
+<p>###<strong>方法：newSingleThreadExecutor</strong><br><figure class="highlight haxe"><table><tr><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="keyword">new</span><span class="type">SingleThreadExecutor</span>() &#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="type">FinalizableDelegatedExecutorService</span></div><div class="line">            (<span class="keyword">new</span> <span class="type">ThreadPoolExecutor</span>(<span class="number">1</span>, <span class="number">1</span>,</div><div class="line">                                    <span class="number">0</span>L, TimeUnit.MILLISECONDS,</div><div class="line">                                    <span class="keyword">new</span> <span class="type">LinkedBlockingQueue</span>&lt;Runnable&gt;()));</div><div class="line">    &#125;</div></pre></td></tr></table></figure></p>
+<p>可以看到该线程池中只有一条线程，意味着每次只能执行一条线程，并且需要等该线程执行完毕后才能继续执行下一条线程。这种情况下就可以不用考虑并发导致数据冲突错误的发生。</p>
+<p>###<strong>方法：newScheduledThreadPool</strong><br><figure class="highlight aspectj"><table><tr><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="function">ScheduledExecutorService <span class="title">newScheduledThreadPool</span><span class="params">(<span class="keyword">int</span> corePoolSize)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ScheduledThreadPoolExecutor(corePoolSize);</div><div class="line">    &#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">ScheduledThreadPoolExecutor</span><span class="params">(<span class="keyword">int</span> corePoolSize)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>(corePoolSize, Integer.MAX_VALUE, <span class="number">0</span>, NANOSECONDS,</div><div class="line">              <span class="keyword">new</span> DelayedWorkQueue());</div><div class="line">    &#125;</div></pre></td></tr></table></figure></p>
+<p>该线程池核心线程数量固定，非核心线程数量没有限制。当非核心线程空闲时会立即被回收。该线程池可以通过调用schedule方法来设定执行线程的延时。可用于执行周期性，定时的任务。</p>
+<p>##关于AsyncTask中的线程池<br>AsyncTask是一个轻量级的异步执行任务的框架。里面也封装了线程池用于处理多个线程的异步任务。那AsyncTask里的线程池是如何被定义的？</p>
+<figure class="highlight aspectj"><table><tr><td class="code"><pre><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> CPU_COUNT = Runtime.getRuntime().availableProcessors();</div><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> CORE_POOL_SIZE = CPU_COUNT + <span class="number">1</span>;</div><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MAXIMUM_POOL_SIZE = CPU_COUNT * <span class="number">2</span> + <span class="number">1</span>;</div><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> KEEP_ALIVE = <span class="number">1</span>;</div><div class="line"></div><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ThreadFactory sThreadFactory = <span class="keyword">new</span> ThreadFactory() &#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> AtomicInteger mCount = <span class="keyword">new</span> AtomicInteger(<span class="number">1</span>);</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="function">Thread <span class="title">newThread</span><span class="params">(Runnable r)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Thread(r, <span class="string">"AsyncTask #"</span> + mCount.getAndIncrement());</div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> BlockingQueue&lt;Runnable&gt; sPoolWorkQueue =</div><div class="line">        <span class="keyword">new</span> LinkedBlockingQueue&lt;Runnable&gt;(<span class="number">128</span>);</div><div class="line"></div><div class="line">   </div><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> Executor THREAD_POOL_EXECUTOR</div><div class="line">        = <span class="keyword">new</span> ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE,</div><div class="line">                TimeUnit.SECONDS, sPoolWorkQueue, sThreadFactory);</div></pre></td></tr></table></figure>
+<p>可以在最后一个方法中明显地看到该线程池的配置：</p>
+<p><strong>CORE_POOL_SIZE</strong>：CPU核心数+1，核心线程数量。<br><strong>MAXIMUM_POOL_SIZE</strong>：最大线程数量为CPU核心数的2倍+1<br><strong>KEEP_ALIVE </strong>：线程池核心线程无超时机制，非核心超时时间为1秒<br><strong>LinkedBlockingQueue<runnable>(128)</runnable></strong>：任务队列容量为128</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/10/15/观察者模式/" rel="next" title="观察者模式">
+                <i class="fa fa-chevron-left"></i> 观察者模式
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/11/18/使用RxJava-Retrofit-MVP-Glide开发一个简单的新闻客户端/" rel="prev" title="使用RxJava+Retrofit+MVP+Glide开发一个简单的新闻客户端">
+                使用RxJava+Retrofit+MVP+Glide开发一个简单的新闻客户端 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/10/26/深入线程池/"
+           data-title="深入线程池" data-url="http://yoursite.com/2016/10/26/深入线程池/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://p3.gexing.com/shaitu/20121007/1357/507119d890452.jpg"
+               alt="QiHuang" />
+          <p class="site-author-name" itemprop="name">QiHuang</p>
+          <p class="site-description motion-element" itemprop="description">hah!</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">53</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">QiHuang</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"scauq"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

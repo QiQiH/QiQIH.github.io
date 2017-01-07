@@ -1,0 +1,732 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Java," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Java集合框架实现了线性表、链表和哈希表这几类数据结构，为我们在程序开发带来了许多便捷。Java集合框架分为两部分：1.集合，用于存数一个元素集合；2.图，用来存储键值对。该文主要对JDK中Collection和Map两个接口中进行简述。一、Collection接口Java集合框架中主要支持三种类型的集合：1.Set（规则集） 2.List（线性表） 3.Queue（队列），其层级关系如图：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java集合框架简述">
+<meta property="og:url" content="http://yoursite.com/2015/12/19/Java集合框架简述/index.html">
+<meta property="og:site_name" content="QiHuang's Blogs">
+<meta property="og:description" content="Java集合框架实现了线性表、链表和哈希表这几类数据结构，为我们在程序开发带来了许多便捷。Java集合框架分为两部分：1.集合，用于存数一个元素集合；2.图，用来存储键值对。该文主要对JDK中Collection和Map两个接口中进行简述。一、Collection接口Java集合框架中主要支持三种类型的集合：1.Set（规则集） 2.List（线性表） 3.Queue（队列），其层级关系如图：">
+<meta property="og:updated_time" content="2017-01-07T05:47:52.252Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java集合框架简述">
+<meta name="twitter:description" content="Java集合框架实现了线性表、链表和哈希表这几类数据结构，为我们在程序开发带来了许多便捷。Java集合框架分为两部分：1.集合，用于存数一个元素集合；2.图，用来存储键值对。该文主要对JDK中Collection和Map两个接口中进行简述。一、Collection接口Java集合框架中主要支持三种类型的集合：1.Set（规则集） 2.List（线性表） 3.Queue（队列），其层级关系如图：">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2015/12/19/Java集合框架简述/"/>
+
+
+
+
+
+  <title> Java集合框架简述 | QiHuang's Blogs </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">QiHuang's Blogs</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">hah!</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-note">
+          <a href="/categories/note" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            随笔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            目录
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2015/12/19/Java集合框架简述/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="QiHuang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://p3.gexing.com/shaitu/20121007/1357/507119d890452.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="QiHuang's Blogs">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="QiHuang's Blogs" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Java集合框架简述
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-12-19T16:16:00+08:00">
+                2015-12-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2015/12/19/Java集合框架简述/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/19/Java集合框架简述/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Java集合框架实现了线性表、链表和哈希表这几类数据结构，为我们在程序开发带来了许多便捷。Java集合框架分为两部分：1.集合，用于存数一个元素集合；2.图，用来存储键值对。该文主要对JDK中Collection和Map两个接口中进行简述。<br>一、Collection接口<br>Java集合框架中主要支持三种类型的集合：1.Set（规则集） 2.List（线性表） 3.Queue（队列），其层级关系如图：</p>
+<a id="more"></a>
+<p>附：<br>Iterator接口<br>Iterator接口提供了为不同类型集合中的元素进行遍历的统一方法。通过Collection接口中的iterator方法可以返回一个Iterator接口的实例（迭代器）。该实例可以通过hasNext()方法检测迭代器中是否有更多的元素，next()方法顺序访问集合的元素等。</p>
+<p>注：java集合框架中的所有具体类中都实现了Cloneable和Serializable接口，因此它们的实例都是可复制且可序列化的。</p>
+<p>1、规则集Set<br>Set接口扩展于Collection接口,在一个实现Set的类中必须确保该规则集没有相同的元素。Set接口中有三个具体类：散列集HashSet、链式散列集LinkedHashSet和树形集TreeSet。<br>HashSet<br>HashSet扩展于Set接口，可以用来储存互不相同的元素。当程序向HashSet的实例中添加多个相同的元素时，只有一个元素会被存储，因为规则集中只能存储不同的元素。此外，HashSet实例中存储的元素没有特定的顺序，并不会按照插入顺序进行排序。<br>主要构造方法：<br>[java] view plain copy<br>+HashSet()  //无参构造，创建一个HashSet实例<br>+HashSet(Collection&lt;? extends E&gt; c)  //从集合c中创建HashSet实例<br>+HashSet(int size) //创建容量为size的HashSet实例  </p>
+<p>LinkedHashSet<br>LinkedHashSet用一个链表实现来扩展HashSet类，因此依旧无法添加重复的元素。在HashSet中，我们无法对其实例的元素进行排序，而当我们需要对元素插入的顺序进行排序时，LinkedHashSet是一个可用的选择。<br>主要构造方法：<br>[java] view plain copy<br>+LinkedHashSet()  //创建一个无参实例<br>+LinkedHashSet(Collection&lt;? extends E&gt; c) //从集合c中创建LinkedHashSet实例<br>+LinkedHashset(int size) //创建一个容量为size的实例<br>TreeSet<br>TreeSet是SortSet接口中的一个具体子类，其中SortSet为Set的子接口。在LinkedHashSet中，可以通过元素插入的顺序对元素排序，但是有时候需要自定义元素排序的顺序，在TreeSet中，只要对象可比较，即可添加进树形集中，并且可通过以下两种方式进行排序：<br>1.使用Comparable接口实现。当插入的对象为Comparable实例（如String,Date等）时，就可以通过接口中的compareTo对对象进行排序。此种排序方式为自然顺序。<br>2.使用比较器接口Comparator实现。有时我们可能需要自定义元素排序的顺序，或者说对象不是Comparable的实例，就可以通过比较器中的compare(object e1, object e2)方法来实现自定义的排序。此种排序方式为比较器顺序。<br>主要构造方法：<br>[java] view plain copy<br>+TreeSet()  //创建一个无参实例<br>+TreeSet( Collection&lt;? extends E&gt; c) //从集合c中创建LinkedHashSet实例<br>+TreeSet(int size) //创建一个容量为size的实例<br>以下为实现比较器顺序的一个案例（以学生信息为例，可通过学号排序，也可通过成绩排序）：<br>[java] view plain copy<br>import java.io.Serializable;<br>import java.util.Comparator;  </p>
+<p>public class StudentComparator implements Comparator<student>, Serializable{ //Java所有集合中都实现了序列化，为了能成功排序，必须实现该接口  </student></p>
+<pre><code>@Override  
+public int compare(Student o1, Student o2) {  
+    if (o1.getGrade() &gt; o2.getGrade())  
+        return 1;  
+    else if (o1.getGrade() == o2.getGrade())  
+        return 0;  
+    else   
+        return -1;    
+}  
+</code></pre><p>}<br>[java] view plain copy</p>
+<p><pre name="code" class="java">import java.util.Iterator;<br>import java.util.TreeSet;  </pre></p>
+<p>public class TestTreeSet {<br>    public static void main(String[] args) {<br>        TreeSet<student> set = new TreeSet&lt;&gt;(new StudentComparator());<br>        set.add(new Student(1, 80));<br>        set.add(new Student(2, 50));<br>        set.add(new Student(3, 78));  </student></p>
+<pre><code>    Iterator&lt;Student&gt; iterator = set.iterator();  //使用迭代器遍历元素  
+    while (iterator.hasNext()) {  
+        Student student = (Student) iterator.next();  
+        System.out.println(student.getId() + &quot; &quot; + student.getGrade());  
+    }  
+}  
+</code></pre><p>}  </p>
+<p>/<em>以下为输出结果<br>2 50<br>3 78<br>1 80</em>/  </p>
+<p>2、线性表List<br>在程序开发中，往往我们需要向集合中添加相同的元素，线性表实现了添加重复元素的功能，此外，线性表也允许通过下标访问集合中指定位置的元素。线性表是一个有序允许重复的集合。<br>List接口中方法有：<br>[java] view plain copy<br>+add(int index) //指定下标添加元素<br>+addAll(int index, Collection&lt;? extends E&gt; c) //指定下标处添加c中所有元素<br>+get(int index) //返回指定下标元素<br>+lastIndexOf(Object o) //返回相同元素的下标<br>+listIterator() //返回遍历列表的迭代器<br>+listIterator(int startIndex) //返回从startIndex开始的所有元素的迭代器<br>+remove(int index) //删除指定下标的元素<br>+set(int index, E element) //设置指定下标的元素<br>+subList(int fromIndex, int toIndex) //返回从fromIndex到toIndex元素子列表<br>List接口中有两个具体实现类：数组线性表ArrayList和链表LinkedList。<br>ArrayList<br>ArrayList使用数组来存储元素，这个数组是动态创建的，当插入的元素超过数组的长度时，就会创建更大的数组，并把当前数组的元素复制到新的数组当中。因此相对于数组来说ArrayList更具有灵活性。<br>构造方法：<br>[java] view plain copy<br>+ArrayList() //创建一个空列表<br>+ArrayList(Collection&lt;? extends E&gt; c) //从集合c中创建实例<br>+ArrayList(int size) //创建一个大小为size的空列表<br>此外，ArrayList中有trimToSize()方法可以将ArrayList的容量缩小到当前列表大小。<br>在Java2之前引入了向量类Vector，其使用方式与ArrayList类似，但Vector实现了现成同步，以避免多线程访问数据时引起数组损坏。关于线程同步，会在后续文章中提及。<br>LinkedList<br>LinkedList是一个双向链表，除了实现List接口的方法还实现了添加和删除表头表尾元素的方法。<br>构造方法及其他方法：<br>[java] view plain copy<br>+LinkedList() //创建一个空链表<br>+LinkedList(int size) //创建一个容量为size的空链表<br>+addFirst(E e) //添加表头元素<br>+addLast(E e) //添加表尾元素<br>+getFirst() //返回表头元素<br>+getLast() //返回表尾元素<br>+removeFirst() //移除表头元素<br>+removeLast() //移除表尾元素  </p>
+<p>3、队列Queue<br>Queue，队列，是一种先进先出的数据结构。新增的元素会插在队列的末尾。在优先队列中，优先级高的元素会首先出队。Queue接口中主要有以下方法：</p>
+<p>[java] view plain copy<br>+offer(E e) //添加元素<br>+poll() // 返回并删除队头元素，否则返回null<br>+remove() //返回并删除队头元素，否则抛出异常<br>+peek() // 返回队头元素，否则返回null<br>+element() //返回队头元素，否则抛出异常  </p>
+<p>Queue中有两个具体实现类：链表LinkedList和优先队列PriorityQueue。</p>
+<p>LinkedList<br>在上述的List接口中也提到过LinkedList，它同时扩展自List接口和Deque接口。双向队列Deque接口扩展自Queue接口，支持在队列的两端在两端插入或删除数据。具体方法可参考上述内容。</p>
+<p>PriorityQueue<br>此类实现了优先队列，在默认情况下，该队列的初始容量为11。其实例所存储的元素默认以自然顺序排列，因此自然顺序下最小的元素会优先出队。队列中可能出现对个优先级相同的元素，那么拥有相同优先级的元素会有其中任意一个优先出队。在讲述TreeSet时提到过使用Comparator接口来实现比较器顺序，在优先队列中依然可行。<br>构造方法：<br>[java] view plain copy<br>+PriorityQueue() //创建一个默认的优先队列<br>+PriorityQueue(int size) //创建一个容量为size的优先队列<br>+PriorityQueue(Collection&lt;? extends E&gt; c) //从集合c中创建优先队列<br>+PriorityQueue(int size, Comparator&lt;? super E&gt;) //创建一个容量为size且拥有比较器顺序的优先队列  </p>
+<p>二、Map接口<br>Java集合框架中支持三种类型的图：散列图HashMap,链式散列图LinkedHashMap和树形图TreeMap。其层级关系与规则集Set类似。<br>Map—-<br>         |<br>         |—-SortMap—-TreeMap<br>         |<br>         |—-HashMap—-LinkedHashMap</p>
+<p>图是按照键值存储数据的容器，这一点与List有相似之处，键值类似于List中的下标，不同的是Map的键值可以是任意对象，同时键值不能重复。图中每个键值对应着一个值，键与值一起存储在图中。<br>Map接口中有如下方法：<br>[java] view plain copy<br>+clear(); //删除图中所有条目<br>+containsKey(Object key) //图中如果包含指定键值返回true<br>+containsValue(Object value) //图中如果包含指定值返回true<br>+get(Object key) //获得指定键值对应的值<br>+entrySet() //返回包含图中条目的规则集<br>+isEmpty() //判断是否空<br>+keySet() //返回图中包含键值的一个规则集<br>+put(Object key, Object value) //添加键值对<br>+putAll( ) //将指定实例中的键值对添加到当前实例中<br>+remove(Object key) //删除指定键值对应的值<br>+size() //键值对个数<br>+values() //返回图中包含的集合  </p>
+<p>HashMap<br>与HashSet相类似，HashMap实例存储的键值对是无序的，不会根据插入的顺序将键值对进行排序，并且存储顺序是随机的。</p>
+<p>LinkedHashMap<br>该类扩展自HashMap，实现了插入的键值对的排序。其排序方式有两种，一种根据插入顺序排序（插入顺序），一种根据最后一次被访问的顺序排序（访问顺序）。通过以下构造方法说明：<br>[java] view plain copy<br>+LinkedHashMap(int size, float loadFactor, boolean Order) //创建一个容量为size的图，客座率为loadFactor（即存储的键值对超过该值，会自动增加图的容量，一般为0.75f），true代表访问顺序，false代表插入顺序  </p>
+<p>TreeMap<br>与TreeSet类似，可通过两种方式来实现对图中的键值进行排序。</p>
+<p>上述三种具体类都可以通过构造方法从其他图中进行创建。以下为一些<br>[java] view plain copy<br>import java.util.HashMap;<br>import java.util.LinkedHashMap;<br>import java.util.Map;<br>import java.util.TreeMap;  </p>
+<p>public class TestMap {<br>    public static void main(String[] args) {<br>        Map<string, integer=""> hashmap = new HashMap&lt;&gt;();<br>        hashmap.put(“s1”, 10);<br>        hashmap.put(“s2”, 6);<br>        hashmap.put(“s3”, 7);<br>        System.out.println(“HashMap:”);<br>        System.out.println(hashmap);  </string,></p>
+<pre><code>    Map&lt;String, Integer&gt; linkedHashMap = new LinkedHashMap&lt;&gt;(3, 0.75f, true);  
+    linkedHashMap.put(&quot;s1&quot;, 10);  
+    linkedHashMap.put(&quot;s2&quot;, 6);  
+    linkedHashMap.put(&quot;s3&quot;, 7);  
+    System.out.println(&quot;LinkedHashMap:&quot;);  
+    System.out.println(linkedHashMap);  
+
+    Map&lt;String, Integer&gt; treeMap = new TreeMap&lt;&gt;();  
+    treeMap.put(&quot;s1&quot;, 10);  
+    treeMap.put(&quot;s2&quot;, 6);  
+    treeMap.put(&quot;s3&quot;, 7);  
+    System.out.println(&quot;TreeMap:&quot;);  
+    System.out.println(treeMap);  
+}  
+</code></pre><p>}<br>/<em>输出结果<br>HashMap:<br>{s3=7, s1=10, s2=6}<br>LinkedHashMap:<br>{s1=10, s2=6, s3=7}<br>TreeMap:<br>{s1=10, s2=6, s3=7}</em>/  </p>
+<p>总结<br>HashSet与HashMap都不能存储相同的元素。其判断是否存在相同元素通过hashcode()和equals()两个方法来实现，当插入一个新元素或键值时，会先判断集合或图中是否存在hashcode()值相同的元素，伪代码如下：<br>[java] view plain copy<br>if (两个元素hashcode值相等) {<br>    if (两个元素相等)<br>        return true; //不添加<br>    else<br>        return false; //添加<br>}  </p>
+<p>由此可知，hashcode相等的两个元素未必相同，但两个相同的元素hashcode必定相同。<br>在Set接口的实例中如果不需要维护元素插入的顺序，则使用HashSet，因为HashSet更高效率。Map接口中的HashMap也是如此。<br>在List接口中，ArrayList在尾部提取和插入元素比较高效，LinkedList在任意位置删除和插入元素较高效。<br>如果在应用程序中不需要添加重复的元素，那么规则集会是最高效的集合。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/01/21/Java多线程/" rel="prev" title="Java多线程">
+                Java多线程 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2015/12/19/Java集合框架简述/"
+           data-title="Java集合框架简述" data-url="http://yoursite.com/2015/12/19/Java集合框架简述/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://p3.gexing.com/shaitu/20121007/1357/507119d890452.jpg"
+               alt="QiHuang" />
+          <p class="site-author-name" itemprop="name">QiHuang</p>
+          <p class="site-description motion-element" itemprop="description">hah!</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">53</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">QiHuang</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"scauq"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

@@ -1,0 +1,733 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="JVM," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="虚拟机把描述类的数据从class文件加载到内存，并进行数据校验，转化解析和初始化，最终形成被虚拟机直接使用得Java类型，这个过程就是体现了虚拟机的类加载机制。
+###类加载经历了哪些过程？类从被加载到虚拟机内存中开始，到被卸载出内存为止，总共经历了一下这些阶段：加载、验证、准备、解析、初始化、使用、卸载。其中验证、准备、解析三个部分统称为连接，如下图所示：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JVM类加载机制">
+<meta property="og:url" content="http://yoursite.com/2016/09/30/JVM类加载机制/index.html">
+<meta property="og:site_name" content="QiHuang's Blogs">
+<meta property="og:description" content="虚拟机把描述类的数据从class文件加载到内存，并进行数据校验，转化解析和初始化，最终形成被虚拟机直接使用得Java类型，这个过程就是体现了虚拟机的类加载机制。
+###类加载经历了哪些过程？类从被加载到虚拟机内存中开始，到被卸载出内存为止，总共经历了一下这些阶段：加载、验证、准备、解析、初始化、使用、卸载。其中验证、准备、解析三个部分统称为连接，如下图所示：">
+<meta property="og:image" content="http://img.blog.csdn.net/20160930194613661">
+<meta property="og:image" content="http://img1.imgtn.bdimg.com/it/u=1994714320,1734740313&fm=21&gp=0.jpg">
+<meta property="og:updated_time" content="2017-01-07T05:47:52.236Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JVM类加载机制">
+<meta name="twitter:description" content="虚拟机把描述类的数据从class文件加载到内存，并进行数据校验，转化解析和初始化，最终形成被虚拟机直接使用得Java类型，这个过程就是体现了虚拟机的类加载机制。
+###类加载经历了哪些过程？类从被加载到虚拟机内存中开始，到被卸载出内存为止，总共经历了一下这些阶段：加载、验证、准备、解析、初始化、使用、卸载。其中验证、准备、解析三个部分统称为连接，如下图所示：">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20160930194613661">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/09/30/JVM类加载机制/"/>
+
+
+
+
+
+  <title> JVM类加载机制 | QiHuang's Blogs </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">QiHuang's Blogs</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">hah!</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-note">
+          <a href="/categories/note" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            随笔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            目录
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/09/30/JVM类加载机制/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="QiHuang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://p3.gexing.com/shaitu/20121007/1357/507119d890452.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="QiHuang's Blogs">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="QiHuang's Blogs" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                JVM类加载机制
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-09-30T20:54:00+08:00">
+                2016-09-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JVM/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/09/30/JVM类加载机制/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/30/JVM类加载机制/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>虚拟机把描述类的数据从class文件加载到内存，并进行数据校验，转化解析和初始化，最终形成被虚拟机直接使用得Java类型，这个过程就是体现了虚拟机的类加载机制。</p>
+<p>###<strong>类加载经历了哪些过程？</strong><br>类从被加载到虚拟机内存中开始，到被卸载出内存为止，总共经历了一下这些阶段：<strong><em>加载、验证、准备、解析、初始化、使用、卸载</em></strong>。其中验证、准备、解析三个部分统称为连接，如下图所示：<br><img src="http://img.blog.csdn.net/20160930194613661" alt="这里写图片描述"><br><a id="more"></a><br>其中，加载、验证、准备、初始化和卸载这5个的顺序是固定的，而解析可以在初始化之后开始，原因在于Java的动态绑定机制。<br>关于加载这一阶段什么时候执行，虚拟机并没有强制约束。但对于初始化阶段，有四种情况必须立即对类进行初始化：</p>
+<blockquote>
+<p>1.遇到new、getstatic、putstatic、invokestatic这四条指令码时，必须先初始化。比较常见的场景有，用new来实例化一个对象，或者是读取设置一个类的静态字段（final修饰除外，因为在编译器就把结果放入常量池）。<br>2.通过反射机制调用类的时候<br>3.含有main()方法的主类<br>4.初始化类时，发现有父类，先初始化父类</p>
+</blockquote>
+<p>上述四种情况即对一个类的主动引用，与之对应的为被动引用，被动引用不会触发类的初始化。写几个简单的示例：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * 父类</div><div class="line"> */</div><div class="line">public <span class="class"><span class="keyword">class</span> <span class="title">SuperClass</span> </span>&#123;</div><div class="line">	public static int value = <span class="number">1</span>;</div><div class="line">	</div><div class="line">	static &#123;</div><div class="line">		<span class="type">System</span>.out.println(<span class="string">"SuperClass created"</span>);</div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line">* 子类</div><div class="line">*/</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">SubClass</span> <span class="keyword">extends</span> <span class="title">SuperClass</span></span>&#123;</div><div class="line">	static &#123;</div><div class="line">		<span class="type">System</span>.out.println(<span class="string">"SubClass created"</span>);</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight cs"><table><tr><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Client</span> &#123;</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span>(<span class="params">String[] args</span>) </span>&#123;</div><div class="line">		System.<span class="keyword">out</span>.println(SubClass.<span class="keyword">value</span>);</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>结果为：</p>
+<blockquote>
+<p>SuperClass created<br>1</p>
+</blockquote>
+<p>由于被动引用的存在，子类并没有被初始化，但是却触发了父类的初始化。<br>另一种情况：</p>
+<figure class="highlight fortran"><table><tr><td class="code"><pre><div class="line">//将上述代码的<span class="keyword">value</span>用<span class="keyword">final</span>修饰</div><div class="line"><span class="keyword">public</span> <span class="keyword">final</span> static <span class="built_in">int</span> <span class="keyword">value</span> = <span class="number">1</span>;</div></pre></td></tr></table></figure>
+<p>结果：</p>
+<blockquote>
+<p>1</p>
+</blockquote>
+<p>会发现父类也没有被初始化，原因在于此时value的值已经存到NoInitlization类的常量池中。对于SubClass.value的引用实际上都转换为NoInitlization类对自身常量池的引用。<br>关于接口的初始化与类的初始化也有所不同，接口初始化时，并不需要其父接口都实现初始化，只有真正用到父接口时才会初始化。</p>
+<p>###<strong>类加载过程分析</strong></p>
+<p>####<strong>1.加载</strong><br>加载阶段，虚拟机需要完成三件事：</p>
+<blockquote>
+<p>1.获取类的二进制字节流<br>2.将这个字节流转换为方法区的运行时数据结构<br>3.在Java堆中生成一个代表这个类的Class对象，作为方法区数据的访问入口。</p>
+</blockquote>
+<p>加载阶段是开发期可控性最强的阶段，这个阶段可以使用系统提供的类加载器区完成，也可以用户自定义加载器来完成。加载完成后，上述三点就实现了。加载阶段和连接阶段交叉进行，加载阶段尚未完成，连接阶段就有可能已经开始。</p>
+<p>####<strong>2.验证</strong><br>这一阶段是为了确保Class文件的字节流信息符合虚拟机要求，不会危害虚拟机自身安全，其中验证包含以下四种验证过程：</p>
+<blockquote>
+<p>1.文件格式验证，检查字节流是否符合Class文件格式规范，并且能被虚拟机处理。<br>2.元数据验证，对语意进行分析，如是否继承了final类，是否有父类（除Object类外都应该有父类）等。<br>3.字节码验证：该阶段验证的主要工作是进行数据流和控制流分析，以保证被校验的类的方法在运行时不会做出危害虚拟机安全的行为。<br>4.符号引用验证：它发生在虚拟机将<strong>符号引用</strong>转化为<strong>直接引用</strong>的时候。可以看作是是对类自身以外的信息（常量池中的各种符号引用）进行匹配性的校验。</p>
+</blockquote>
+<p>####<strong>3.准备</strong><br>准备阶段是正式为类分配内存并设置类初始化变量的时候，这些内存都将在方法区分配。这个时候进行内存分配的只是static修饰的变量，而不包括实例变量。<br>考虑下面这种情况：</p>
+<figure class="highlight cs"><table><tr><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="keyword">value</span> = <span class="number">1</span>;</div></pre></td></tr></table></figure>
+<p>value在准备阶段后初值为0，而不是1。赋值为1则是在初始化阶段才进行的。关于各种数据类型在准备阶段的初始值也可以参考下图：<br><img src="http://img1.imgtn.bdimg.com/it/u=1994714320,1734740313&amp;fm=21&amp;gp=0.jpg" alt="这里写图片描述"></p>
+<p>####<strong>4.解析</strong><br>  解析动作主要针对类或接口、字段、类方法、接口方法四类符号引用进行，分别对应于常量池中的CONSTANT_Class_info、CONSTANT_Fieldref_info、CONSTANT_Methodref_info、CONSTANT_InterfaceMethodref_info四种常量类型。<br>  先了解两个知识点：</p>
+<blockquote>
+<p>符号引用：用一组符号来描述所引用的目标，符号可以是任意字面量。<br>直接引用：可以是指向目标的指针，相对偏移量或是能够定位到目标的句柄。</p>
+</blockquote>
+<p>解析分一下几个过程：</p>
+<blockquote>
+<p>1.类或接口解析：判断所要转化成的直接引用是对数组类型，还是普通的对象类型的引用，从而进行不同的解析。<br>2.字段解析：查找类中是否包含有简单名称和字段描述符都与目标相匹配的字段，如果有，结束查找，否则，继续往父类查找。<br>3.类方法解析：与字段解析类似，需要先解析出方法所属的类或接口的符号引用。<br>4.接口方法解析：解析出接口方法中所属的类或接口的符号引用。否则，向上查找。</p>
+</blockquote>
+<p>（有点难懂T_T）</p>
+<p>####<strong>4.初始化</strong></p>
+<blockquote>
+<p>参考自 <a href="http://blog.csdn.net/ns_code/article/details/17881581" target="_blank" rel="external">http://blog.csdn.net/ns_code/article/details/17881581</a></p>
+</blockquote>
+<p>(以下方法都有&lt;&gt;包围，MarkDown语法跪了。。)</p>
+<p>初始化是类加载过程的最后一步，到了此阶段，才真正开始执行类中定义的Java程序代码。在准备阶段，类变量已经被赋过一次系统要求的初始值，而在初始化阶段，则是根据程序员通过程序指定的主观计划去初始化类变量和其他资源，或者可以从另一个角度来表达：初始化阶段是执行类构造器<clinit>()方法的过程。<br>   这里简单说明下client()方法的执行规则:<br>    1、client()方法是由编译器自动收集类中的所有类变量的赋值动作和静态语句块中的语句合并产生的，编译器收集的顺序是由语句在源文件中出现的顺序所决定的，静态语句块中只能访问到定义在静态语句块之前的变量，定义在它之后的变量，在前面的静态语句中可以赋值，但是不能访问。<br>    2、client()方法与实例构造器init()方法（类的构造函数）不同，它不需要显式地调用父类构造器，虚拟机会保证在子类的client()方法执行之前，父类的client()方法已经执行完毕。因此，在虚拟机中第一个被执行的client()方法的类肯定是java.lang.Object。<br>    3、client()方法对于类或接口来说并不是必须的，如果一个类中没有静态语句块，也没有对类变量的赋值操作，那么编译器可以不为这个类生成client()方法。<br>    4、接口中不能使用静态语句块，但仍然有类变量（final static）初始化的赋值操作，因此接口与类一样会生成client()方法。但是接口鱼类不同的是：执行接口的client()方法不需要先执行父接口的client()方法，只有当父接口中定义的变量被使用时，父接口才会被初始化。另外，接口的实现类在初始化时也一样不会执行接口的client()方法。<br>    5、虚拟机会保证一个类的client()方法在多线程环境中被正确地加锁和同步，如果多个线程同时去初始化一个类，那么只会有一个线程去执行这个类的client()方法，其他线程都需要阻塞等待，直到活动线程执行client()方法完毕。如果在一个类的client()方法中有耗时很长的操作，那就可能造成多个线程阻塞，在实际应用中这种阻塞往往是很隐蔽的。</clinit></p>
+<p>以上则是类加载过程的概述。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/JVM/" rel="tag"># JVM</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/28/深入Java内存区域/" rel="next" title="深入Java内存区域">
+                <i class="fa fa-chevron-left"></i> 深入Java内存区域
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/10/01/浅析ClassLoader/" rel="prev" title="浅析ClassLoader">
+                浅析ClassLoader <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/09/30/JVM类加载机制/"
+           data-title="JVM类加载机制" data-url="http://yoursite.com/2016/09/30/JVM类加载机制/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://p3.gexing.com/shaitu/20121007/1357/507119d890452.jpg"
+               alt="QiHuang" />
+          <p class="site-author-name" itemprop="name">QiHuang</p>
+          <p class="site-description motion-element" itemprop="description">hah!</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">53</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">QiHuang</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"scauq"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

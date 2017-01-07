@@ -1,0 +1,735 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="设计模式," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="文档是我们在计算机上记录文字等一个工具，通常一份文档有一个大标题，也有许多个副标题。文档的复制拷贝也很常见，那么怎么在程序设计中运用原型模式来模拟文档的复制呢？首先，通过UML图大概了解一下原型模式吧：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="原型模式">
+<meta property="og:url" content="http://yoursite.com/2016/09/10/原型模式—/index.html">
+<meta property="og:site_name" content="QiHuang's Blogs">
+<meta property="og:description" content="文档是我们在计算机上记录文字等一个工具，通常一份文档有一个大标题，也有许多个副标题。文档的复制拷贝也很常见，那么怎么在程序设计中运用原型模式来模拟文档的复制呢？首先，通过UML图大概了解一下原型模式吧：">
+<meta property="og:image" content="http://img.blog.csdn.net/20160910001240328">
+<meta property="og:updated_time" content="2017-01-07T05:47:52.283Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="原型模式">
+<meta name="twitter:description" content="文档是我们在计算机上记录文字等一个工具，通常一份文档有一个大标题，也有许多个副标题。文档的复制拷贝也很常见，那么怎么在程序设计中运用原型模式来模拟文档的复制呢？首先，通过UML图大概了解一下原型模式吧：">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20160910001240328">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/09/10/原型模式—/"/>
+
+
+
+
+
+  <title> 原型模式 | QiHuang's Blogs </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">QiHuang's Blogs</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">hah!</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-note">
+          <a href="/categories/note" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            随笔
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            目录
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/09/10/原型模式—/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="QiHuang">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://p3.gexing.com/shaitu/20121007/1357/507119d890452.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="QiHuang's Blogs">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="QiHuang's Blogs" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                原型模式
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-09-10T00:13:00+08:00">
+                2016-09-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/设计模式/" itemprop="url" rel="index">
+                    <span itemprop="name">设计模式</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/09/10/原型模式—/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/10/原型模式—/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>文档是我们在计算机上记录文字等一个工具，通常一份文档有一个大标题，也有许多个副标题。文档的复制拷贝也很常见，那么怎么在程序设计中运用原型模式来模拟文档的复制呢？<br>首先，通过UML图大概了解一下原型模式吧：<br><img src="http://img.blog.csdn.net/20160910001240328" alt="这里写图片描述"><br><a id="more"></a></p>
+<blockquote>
+<p>Client:客户端类<br>Prototype:抽象类或接口，实现了Cloneable接口<br>ConcretePrototype:具体的原型类 </p>
+</blockquote>
+<p>既然需要模拟文档复制，那么就需要先建立一个文档：<br><figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="comment">//Docment相当于ConcretePrototype，而Cloneable接口相当于Prototype</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Document</span> <span class="keyword">implements</span> <span class="title">Cloneable</span></span>&#123;</div><div class="line">	<span class="comment">//主标题</span></div><div class="line">	<span class="keyword">private</span> String title;</div><div class="line">	<span class="comment">//所有副标题</span></div><div class="line">	<span class="keyword">private</span> ArrayList&lt;String&gt; subTitles = <span class="keyword">new</span> ArrayList&lt;&gt;();</div><div class="line">	</div><div class="line">	<span class="meta">@Override</span></div><div class="line">	<span class="function"><span class="keyword">protected</span> Document <span class="title">clone</span><span class="params">()</span> <span class="keyword">throws</span> CloneNotSupportedException </span>&#123;</div><div class="line">		Document mNewspaper = (Document) <span class="keyword">super</span>.clone();</div><div class="line">		mNewspaper.title = title;</div><div class="line">		mNewspaper.subTitles = subTitles;</div><div class="line">		<span class="keyword">return</span> mNewspaper;</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="comment">//添加副标题</span></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addSubTitle</span><span class="params">(String content)</span> </span>&#123;</div><div class="line">		subTitles.add(content);</div><div class="line">	&#125;</div><div class="line">	<span class="comment">//设置主标题</span></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setTitle</span><span class="params">(String title)</span> </span>&#123;</div><div class="line">		<span class="keyword">this</span>.title = title;</div><div class="line">	&#125;</div><div class="line">	<span class="comment">//文档内容</span></div><div class="line">	<span class="function"><span class="keyword">public</span> String <span class="title">getDocText</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">return</span> title + <span class="string">" "</span> + subTitles.toString();</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>然后需要一个客户端来进行复制：</p>
+<figure class="highlight ceylon"><table><tr><td class="code"><pre><div class="line">public <span class="keyword">class</span> Client &#123;</div><div class="line">	public static <span class="keyword">void</span> main(String[] args) <span class="meta">throws</span> CloneNotSupportedException &#123;</div><div class="line">		Document <span class="meta">doc</span> = <span class="keyword">new</span> Document();</div><div class="line">		<span class="meta">doc</span>.setTitle(<span class="string">"标题"</span>);</div><div class="line">		<span class="meta">doc</span>.addSubTitle(<span class="string">"副标题1"</span>);</div><div class="line">		<span class="meta">doc</span>.addSubTitle(<span class="string">"副标题2"</span>);</div><div class="line">		<span class="meta">doc</span>.addSubTitle(<span class="string">"副标题3"</span>);</div><div class="line">		System.<span class="keyword">out</span>.println(<span class="string">"原文档："</span> + <span class="meta">doc</span>.getDocText());</div><div class="line">		</div><div class="line">		Document docCloning = <span class="meta">doc</span>.clone();</div><div class="line">		System.<span class="keyword">out</span>.println(<span class="string">"复制的文档："</span> + docCloning.getDocText());</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>结果为：</p>
+<blockquote>
+<p>原文档：标题 [副标题1, 副标题2, 副标题3]<br>复制的文档：标题 [副标题1, 副标题2, 副标题3]</p>
+</blockquote>
+<p>这就是原型模式的实现，但是却会存在下列的问题，将代码修改一下：</p>
+<figure class="highlight ceylon"><table><tr><td class="code"><pre><div class="line">public <span class="keyword">class</span> Client &#123;</div><div class="line">	public static <span class="keyword">void</span> main(String[] args) <span class="meta">throws</span> CloneNotSupportedException &#123;</div><div class="line">		Document <span class="meta">doc</span> = <span class="keyword">new</span> Document();</div><div class="line">		<span class="meta">doc</span>.setTitle(<span class="string">"标题"</span>);</div><div class="line">		<span class="meta">doc</span>.addSubTitle(<span class="string">"副标题1"</span>);</div><div class="line">		<span class="meta">doc</span>.addSubTitle(<span class="string">"副标题2"</span>);</div><div class="line">		<span class="meta">doc</span>.addSubTitle(<span class="string">"副标题3"</span>);</div><div class="line">		System.<span class="keyword">out</span>.println(<span class="string">"原文档："</span> + <span class="meta">doc</span>.getDocText());</div><div class="line">		</div><div class="line">		Document docCloning = <span class="meta">doc</span>.clone();</div><div class="line">		System.<span class="keyword">out</span>.println(<span class="string">"复制的文档："</span> + docCloning.getDocText());</div><div class="line">		System.<span class="keyword">out</span>.println();</div><div class="line">		<span class="comment">//克隆的对象添加一个副标题，之后输出克隆的和原来的DOC内容</span></div><div class="line">		docCloning.addSubTitle(<span class="string">"副标题4"</span>);</div><div class="line">		System.<span class="keyword">out</span>.println(<span class="string">"复制的文档："</span> + docCloning.getDocText());</div><div class="line">		System.<span class="keyword">out</span>.println(<span class="string">"原文档："</span> + <span class="meta">doc</span>.getDocText());</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>结果为：</p>
+<blockquote>
+<p>原文档：标题 [副标题1, 副标题2, 副标题3]<br>复制的文档：标题 [副标题1, 副标题2, 副标题3]</p>
+<p>复制的文档：标题 [副标题1, 副标题2, 副标题3, 副标题4]<br>原文档：标题 [副标题1, 副标题2, 副标题3, 副标题4]</p>
+</blockquote>
+<p>会发现原来的文档的副标题也修改了，这就引出了克隆的知识点：浅克隆与深克隆。<br>上述的克隆方式即为浅克隆，虽然克隆出了一个新的文档，但是他们对于subTitles的引用还是指向了同一个对象。要想避免出现这种问题，则需要使用深克隆，方法也很简单：</p>
+<figure class="highlight aspectj"><table><tr><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line">	<span class="keyword">protected</span> <span class="function">Document <span class="title">clone</span><span class="params">()</span> <span class="keyword">throws</span> CloneNotSupportedException </span>&#123;</div><div class="line">		Document mNewspaper = (Document) <span class="keyword">super</span>.clone();</div><div class="line">		mNewspaper.title = title;</div><div class="line">		<span class="comment">//将引用的字段subTitles也进行克隆</span></div><div class="line">		mNewspaper.subTitles = (ArrayList&lt;String&gt;) subTitles.clone();</div><div class="line">		<span class="keyword">return</span> mNewspaper;</div><div class="line">	&#125;</div></pre></td></tr></table></figure>
+<p>结果为：</p>
+<blockquote>
+<p>复制的文档：标题 [副标题1, 副标题2, 副标题3, 副标题4]<br>原文档：标题 [副标题1, 副标题2, 副标题3]</p>
+</blockquote>
+<p>原型模式的应用相对简单，只不过需要注意到什么时候应该用浅克隆，或是深克隆。该模式适用于当需要一个相同的副本，要避免使用new来产生新对象导致资源消耗时使用。</p>
+<h2 id="原型模式的优缺点"><a href="#原型模式的优缺点" class="headerlink" title="原型模式的优缺点"></a>原型模式的优缺点</h2><ul>
+<li>优点<br>– 相对于用new产生一个对象来说，会消耗更少的资源，尤其是在循环体内。</li>
+<li>缺点<br>  -原型模式是克隆二进制流，并不会执行构造方法。</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/设计模式/" rel="tag"># 设计模式</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/06/代Builder模式式/" rel="next" title="Builder模式">
+                <i class="fa fa-chevron-left"></i> Builder模式
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/10/策略模式—/" rel="prev" title="策略模式">
+                策略模式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/09/10/原型模式—/"
+           data-title="原型模式" data-url="http://yoursite.com/2016/09/10/原型模式—/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://p3.gexing.com/shaitu/20121007/1357/507119d890452.jpg"
+               alt="QiHuang" />
+          <p class="site-author-name" itemprop="name">QiHuang</p>
+          <p class="site-description motion-element" itemprop="description">hah!</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">53</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#原型模式的优缺点"><span class="nav-number">1.</span> <span class="nav-text">原型模式的优缺点</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">QiHuang</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"scauq"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>
